@@ -1,10 +1,10 @@
-import { 
-  Home, 
-  Sun, 
-  Moon, 
-  Scissors, 
-  Heart, 
-  ShieldCheck, 
+import {
+  Home,
+  Sun,
+  Moon,
+  Scissors,
+  Heart,
+  ShieldCheck,
   Clock,
   Bone,
   MapPin,
@@ -80,57 +80,30 @@ export const PRICING_TIERS: PricingTier[] = [
 export const TESTIMONIALS: Testimonial[] = [
   {
     id: 1,
-    ownerName: "Mei Ling",
-    dogName: "Oreo",
-    breed: "Shih Tzu",
-    text: "I was so worried about leaving Oreo because he hates cages. My Pawcation is truly a home! He slept on a cozy rug and made so many friends. The daily WhatsApp videos kept me sane during my trip.",
+    ownerName: "Erica",
+    dogName: "Cotton",
+    breed: "Japanese Spitz",
+    text: "Cotton feels so at home here. I never have to worry about cages or her being lonely. The daily WhatsApp updates are the highlight of my day when I'm away. Truly a premier boarding experience in KL!",
     rating: 5,
-    imageUrl: "https://images.unsplash.com/photo-1591946614720-90a587da4a36?auto=format&fit=crop&w=400&q=80"
+    imageUrl: "/assets/dog-spitz.jpg"
   },
   {
     id: 2,
-    ownerName: "Rajiv & Sarah",
-    dogName: "Bruno",
+    ownerName: "Wei Ren",
+    dogName: "Cooper",
     breed: "Golden Retriever",
-    text: "The space is huge and clean. Bruno came back happy and tired (the good kind!). I love that they are transparent about their capacity limits. Feels very safe.",
+    text: "The space is amazing and very clean. Cooper always comes back happy and well-rested. It's rare to find a place that handles large breeds with so much care and attention to detail.",
     rating: 5,
-    imageUrl: "https://images.unsplash.com/photo-1552053831-71594a27632d?auto=format&fit=crop&w=400&q=80"
+    imageUrl: "/assets/dog-golden.jpg"
   },
   {
     id: 3,
-    ownerName: "Jessica Tan",
+    ownerName: "Sarah L.",
     dogName: "Mochi",
     breed: "Poodle",
-    text: "Professional yet warm. They administered Mochi's eye drops perfectly. It's hard to find a place in KL that feels this personal. Highly recommended!",
-    rating: 4,
-    imageUrl: "https://images.unsplash.com/photo-1605248169874-a690e1188173?auto=format&fit=crop&w=400&q=80"
-  },
-  {
-    id: 4,
-    ownerName: "Ahmad Z.",
-    dogName: "Rocky",
-    breed: "Beagle",
-    text: "Rocky can be a bit stubborn, but the team handled him with so much patience. He actually didn't want to leave when I picked him up!",
+    text: "Professional, transparent, and most importantly, loving. They even prepared fresh meals for Mochi when she was being a picky eater. Highly recommend for any pawrent!",
     rating: 5,
-    imageUrl: "https://images.unsplash.com/photo-1537151608828-ea2b11777ee8?auto=format&fit=crop&w=400&q=80"
-  },
-  {
-    id: 5,
-    ownerName: "Michelle L.",
-    dogName: "Luna",
-    breed: "Corgi",
-    text: "Great facility, very clean. The only downside is they book up so fast during holidays! But that shows how good they are.",
-    rating: 4,
-    imageUrl: "https://images.unsplash.com/photo-1612536053345-1171a174a025?auto=format&fit=crop&w=400&q=80"
-  },
-  {
-    id: 6,
-    ownerName: "Kenji",
-    dogName: "Hachi",
-    breed: "Shiba Inu",
-    text: "10/10 experience. The daily updates are detailed, and I can tell the staff really loves dogs. Will definitely book again.",
-    rating: 5,
-    imageUrl: "https://images.unsplash.com/photo-1583511655857-d19b40a7a54e?auto=format&fit=crop&w=400&q=80"
+    imageUrl: "/assets/dog-food.jpg"
   }
 ];
 

@@ -6,31 +6,31 @@ interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   fullWidth?: boolean;
 }
 
-export const Button: React.FC<ButtonProps> = ({ 
-  children, 
-  variant = 'primary', 
-  size = 'md', 
+export const Button: React.FC<ButtonProps> = ({
+  children,
+  variant = 'primary',
+  size = 'md',
   fullWidth = false,
   className = '',
-  ...props 
+  ...props
 }) => {
   const baseStyles = "inline-flex items-center justify-center font-display font-bold transition-all duration-300 rounded-full focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transform hover:-translate-y-0.5";
-  
+
   const variants = {
-    primary: "bg-brand-teal text-white hover:bg-brand-dark focus:ring-brand-teal shadow-lg shadow-brand-teal/30",
-    secondary: "bg-brand-buff text-white hover:bg-orange-600 focus:ring-brand-buff shadow-lg shadow-brand-buff/30",
-    outline: "border-2 border-brand-teal text-brand-teal hover:bg-brand-teal hover:text-white",
-    white: "bg-white text-brand-teal hover:bg-gray-50 shadow-md"
+    primary: "bg-brand-green text-white hover:bg-brand-brown focus:ring-brand-green shadow-lg shadow-brand-green/30",
+    secondary: "bg-brand-brown text-white hover:bg-black focus:ring-brand-brown shadow-lg shadow-brand-brown/30",
+    outline: "border-2 border-brand-green text-brand-green hover:bg-brand-green hover:text-white",
+    white: "bg-white text-brand-green hover:bg-brand-cream shadow-md"
   };
 
   const sizes = {
     sm: "px-4 py-2 text-sm",
     md: "px-6 py-3 text-base",
-    lg: "px-8 py-4 text-lg"
+    lg: "px-10 py-4 text-lg"
   };
 
   return (
-    <button 
+    <button
       className={`
         ${baseStyles} 
         ${variants[variant]} 
@@ -46,16 +46,16 @@ export const Button: React.FC<ButtonProps> = ({
 };
 
 export const SectionTitle: React.FC<{ title: string; subtitle?: string; centered?: boolean }> = ({ title, subtitle, centered = true }) => (
-  <div className={`mb-12 ${centered ? 'text-center' : ''}`}>
+  <div className={`mb-16 ${centered ? 'text-center' : ''}`}>
     {subtitle && (
-      <span className="inline-block py-1 px-3 rounded-full bg-brand-sand text-brand-dark text-sm font-bold uppercase tracking-wider mb-3">
+      <span className="inline-block py-1 px-4 rounded-full bg-brand-green/10 text-brand-green text-sm font-bold uppercase tracking-widest mb-4">
         {subtitle}
       </span>
     )}
-    <h2 className="text-3xl md:text-5xl font-display font-extrabold text-brand-dark mb-4">
+    <h2 className="text-4xl md:text-6xl font-display font-extrabold text-brand-brown mb-6 leading-tight">
       {title}
     </h2>
-    <div className={`h-2 w-24 bg-brand-buff rounded-full ${centered ? 'mx-auto' : ''}`} />
+    <div className={`h-1.5 w-24 bg-brand-accent rounded-full ${centered ? 'mx-auto' : ''}`} />
   </div>
 );
 

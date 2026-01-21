@@ -18,13 +18,20 @@ export const Navbar: React.FC = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           <div className="flex-shrink-0 flex items-center">
-            <a href="#home" className="flex items-center gap-2 group">
-              <div className="bg-brand-green p-2 rounded-full text-white transform group-hover:rotate-12 transition-transform shadow-lg shadow-brand-green/20">
-                <PawPrint size={24} fill="currentColor" />
+            <a href="#home" className="flex items-center gap-3 group">
+              <img 
+                src="/assets/logo.png" 
+                alt="My Pawcation Logo" 
+                className="h-12 w-auto transform group-hover:scale-105 transition-transform"
+              />
+              <div className="flex flex-col">
+                <span className="font-display font-extrabold text-xl leading-tight text-brand-brown">
+                  My Pawcation
+                </span>
+                <span className="text-[10px] font-bold text-brand-green tracking-widest uppercase">
+                  Home-Style Boarding
+                </span>
               </div>
-              <span className={`font-display font-extrabold text-2xl tracking-tight ${scrolled ? 'text-brand-dark' : 'text-brand-dark'}`}>
-                My Pawcation
-              </span>
             </a>
           </div>
           
@@ -87,19 +94,22 @@ export const Footer: React.FC = () => {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-12">
           
           <div className="col-span-1 md:col-span-1">
-            <div className="flex items-center gap-2 mb-4">
-              <PawPrint className="text-brand-sand" size={32} />
-              <span className="font-display font-bold text-2xl">My Pawcation</span>
+            <div className="flex items-center gap-3 mb-6">
+              <img src="/assets/logo.png" alt="My Pawcation" className="h-10 w-auto bg-white rounded-lg p-1" />
+              <span className="font-display font-bold text-xl">My Pawcation</span>
             </div>
             <p className="text-gray-300 mb-6 leading-relaxed text-sm">
-              Safe, home-style boarding for your furry family members. No cages, just love.
+              Premium home-style boarding & daycare. We provide a cage-free, loving environment where your dogs are treated like family.
             </p>
             <div className="flex space-x-4">
-              <a href="#" className="bg-white/10 p-2 rounded-full hover:bg-brand-green transition-colors">
+              <a href="https://instagram.com/mypawcation" target="_blank" rel="noopener noreferrer" className="bg-white/10 p-2 rounded-full hover:bg-brand-green transition-colors">
                 <Instagram size={20} />
               </a>
-              <a href="#" className="bg-white/10 p-2 rounded-full hover:bg-brand-green transition-colors">
+              <a href="https://facebook.com/mypawcation" target="_blank" rel="noopener noreferrer" className="bg-white/10 p-2 rounded-full hover:bg-brand-green transition-colors">
                 <Facebook size={20} />
+              </a>
+              <a href="https://tiktok.com/@mypawcation" target="_blank" rel="noopener noreferrer" className="bg-white/10 p-2 rounded-full hover:bg-brand-green transition-colors">
+                <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round"><path d="M9 12a4 4 0 1 0 4 4V4a5 5 0 0 0 5 5"></path></svg>
               </a>
             </div>
           </div>
@@ -122,7 +132,7 @@ export const Footer: React.FC = () => {
             <ul className="space-y-4 text-sm">
               <li className="flex items-start gap-3 text-gray-300">
                 <MapPin className="shrink-0 text-brand-green" size={20} />
-                <span>Jalan Badam 5, Taman Rakyat,<br />Cheras, 56100, KL</span>
+                <span>No. 5, Jalan Badam 5, Taman Rakyat,<br />Cheras, 56100 Kuala Lumpur</span>
               </li>
               <li className="flex items-center gap-3 text-gray-300">
                 <Phone className="shrink-0 text-brand-green" size={20} />
@@ -130,7 +140,7 @@ export const Footer: React.FC = () => {
               </li>
               <li className="flex items-center gap-3 text-gray-300">
                 <Mail className="shrink-0 text-brand-green" size={20} />
-                <span>woof@mypawcation.com.my</span>
+                <span>hello@mypawcation.com</span>
               </li>
             </ul>
           </div>

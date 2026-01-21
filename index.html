@@ -1,58 +1,70 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>My Pawcation - A Vacation Your Dog Will Love</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&family=Quicksand:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <script>
-      tailwind.config = {
-        theme: {
-          extend: {
-            fontFamily: {
-              sans: ['Quicksand', 'sans-serif'],
-              display: ['Nunito', 'sans-serif'],
-            },
-            colors: {
-              brand: {
-                cream: '#FFF9F0',      /* Warm base */
-                sand: '#E6DCC3',       /* Secondary beige */
-                green: '#8FB38F',      /* Soft nature green */
-                blue: '#B3D9E4',       /* Soft emotional blue */
-                brown: '#5D4037',      /* Chocolate brown - grounding */
-                
-                // Mapping old variable names to new palette for compatibility
-                teal: '#8FB38F',       /* Primary Action (Green) */
-                dark: '#5D4037',       /* Text/Headings (Chocolate) */
-                buff: '#D4A373',       /* Accents */
-                terra: '#FAEDCD',
-              }
-            },
-            borderRadius: {
-              '4xl': '2rem',
-              '5xl': '3rem',
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>My Pawcation | Premier Home-Style Dog Boarding & Daycare in KL</title>
+  <meta name="description"
+    content="Safe, cage-free, and loving home-style dog boarding and daycare in Kuala Lumpur. Daily updates, 24/7 supervision, and premium care for your furry family." />
+  <meta name="keywords"
+    content="dog boarding kl, dog daycare cheras, pet hotel kuala lumpur, cage-free dog boarding, my pawcation" />
+  <link rel="icon" type="image/png" href="/assets/logo.png" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&family=Quicksand:wght@400;500;600;700&display=swap"
+    rel="stylesheet">
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Quicksand', 'sans-serif'],
+            display: ['Nunito', 'sans-serif'],
+          },
+          colors: {
+            brand: {
+              cream: '#FFF9F0',      /* Warm base */
+              sand: '#F5E6CA',       /* Secondary beige */
+              green: '#7CB342',      /* Official logo green */
+              brown: '#6D4C41',      /* Official logo brown */
+              accent: '#FFB300',     /* Sun yellow */
+
+              // Compatibility mappings
+              teal: '#7CB342',
+              dark: '#4E342E',       /* Darker brown for text */
+              buff: '#8D6E63',
+              terra: '#FAEDCD',
             }
+          },
+          borderRadius: {
+            '4xl': '2rem',
+            '5xl': '3rem',
           }
         }
       }
-    </script>
-    <style>
-      html { scroll-behavior: smooth; }
-      body { background-color: #FFF9F0; color: #5D4037; }
-    </style>
-  <script type="importmap">
-{
-  "imports": {
-    "react/": "https://esm.sh/react@^19.2.3/",
-    "react": "https://esm.sh/react@^19.2.3",
-    "react-dom/": "https://esm.sh/react-dom@^19.2.3/",
-    "lucide-react": "https://esm.sh/lucide-react@^0.562.0"
-  }
-}
-</script>
+    }
+  </script>
+  <style>
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      background-color: #FFF9F0;
+      color: #4E342E;
+    }
+
+    .bg-glass {
+      background: rgba(255, 255, 255, 0.8);
+      backdrop-filter: blur(8px);
+    }
+  </style>
 </head>
-  <body>
-    <div id="root"></div>
-  </body>
+
+<body>
+  <div id="root"></div>
+  <script type="module" src="/index.tsx"></script>
+</body>
+
 </html>

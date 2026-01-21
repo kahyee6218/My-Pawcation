@@ -6,9 +6,9 @@ import { BookingForm } from './components/sections/BookingForm';
 
 function App() {
   return (
-    <div className="font-sans antialiased text-stone-800 bg-brand-cream selection:bg-brand-teal selection:text-white flex flex-col min-h-screen">
+    <div className="font-sans antialiased text-brand-brown bg-brand-cream selection:bg-brand-green selection:text-white flex flex-col min-h-screen">
       <Navbar />
-      
+
       <main className="flex-grow">
         <Hero />
         <AboutPreview />
@@ -21,11 +21,11 @@ function App() {
       </main>
 
       <Footer />
-      
+
       {/* WhatsApp Floating Button */}
-      <a 
-        href="https://wa.me/" 
-        target="_blank" 
+      <a
+        href="https://wa.me/"
+        target="_blank"
         rel="noopener noreferrer"
         className="fixed bottom-6 right-6 z-50 bg-[#25D366] text-white p-4 rounded-full shadow-lg hover:bg-[#20ba5a] transition-colors transform hover:scale-110 flex items-center justify-center"
         aria-label="Chat on WhatsApp"

@@ -1,20 +1,34 @@
-<div align="center">
-<img width="1200" height="475" alt="GHBanner" src="https://github.com/user-attachments/assets/0aa67016-6eaf-458a-adb2-6e31a0763ed6" />
-</div>
+# My Pawcation | Premier Dog Boarding & Daycare
 
-# Run and deploy your AI Studio app
+The official website for **My Pawcation**, migrated and refined for production. This site features a premium, home-style aesthetic, real customer testimonials, and a functional booking flow.
 
-This contains everything you need to run your app locally.
+## 🚀 Key Features
+- **Official Branding:** Integrated official logo and custom color palette.
+- **Real Visuals:** Replaced placeholders with actual facility and guest photos.
+- **Booking Flow:** Integrated Formspree for lead capture with automated user confirmation.
+- **Premium UX:** Modern glassmorphism UI with smooth animations and responsive layout.
+- **SEO Optimized:** Meta tags and descriptive content for better search visibility.
 
-View your app in AI Studio: https://ai.studio/apps/drive/1Mqt1NmBpZFlV5EXPcfNPfXWUY7MbQLxr
+## 🛠️ Getting Started
 
-## Run Locally
+### Prerequisites
+- Node.js (Latest LTS recommended)
 
-**Prerequisites:**  Node.js
-
-
+### Installation
 1. Install dependencies:
-   `npm install`
-2. Set the `GEMINI_API_KEY` in [.env.local](.env.local) to your Gemini API key
-3. Run the app:
-   `npm run dev`
+   ```bash
+   npm install
+   ```
+2. **Booking Form Setup:**
+   - Go to [Formspree](https://formspree.io) and create a new form.
+   - Update the `handleSubmit` endpoint in `src/components/sections/BookingForm.tsx` with your unique Formspree ID.
+3. Run the development server:
+   ```bash
+   npm run dev
+   ```
+
+## 📍 Location & Contact
+- **Address:** No. 5, Jalan Badam 5, Taman Rakyat, Cheras, 56100 Kuala Lumpur
+- **WhatsApp:** +60 12-345 6789
+- **Email:** hello@mypawcation.com
+
