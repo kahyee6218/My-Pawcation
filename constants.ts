@@ -90,9 +90,9 @@ export const PRICING_DATA = {
       { size: "Large", price: "RM1650 / month" }
     ],
     grooming: [
-      { size: "Small", price: "RM45 – RM50" },
-      { size: "Medium", price: "RM55 – RM60" },
-      { size: "Large", price: "RM60 – RM65" }
+      { size: "Small", normal: "RM45", peak: "RM55" },
+      { size: "Medium", normal: "RM55", peak: "RM65" },
+      { size: "Large", normal: "RM65", peak: "RM75" }
     ]
   },
   cats_rabbits: {
@@ -101,8 +101,8 @@ export const PRICING_DATA = {
       { type: "Long-hair / Special", normal: "RM20", peak: "RM25" }
     ],
     boarding: [
-      { type: "Standard", price: "RM30 – RM35" },
-      { type: "Long-hair / Special", price: "RM40 – RM45" }
+      { type: "Standard", normal: "RM30", peak: "RM40" },
+      { type: "Long-hair / Special", normal: "RM40", peak: "RM50" }
     ],
     monthly: [
       { type: "Standard", price: "RM650 / month" },
@@ -110,8 +110,6 @@ export const PRICING_DATA = {
     ]
   },
   addons: [
-    { service: "Basic Grooming (Small ≤7kg)", price: "RM40" },
-    { service: "Basic Grooming (Med–Large)", price: "RM60" },
     { service: "Pick-up & Drop-off (within 10km)", price: "RM20 – RM40" },
     { service: "Training Reinforcement", price: "RM40 / session" },
     { service: "Premium 1-on-1 Care", price: "+RM30 / day" },
@@ -119,37 +117,60 @@ export const PRICING_DATA = {
   ]
 };
 
-// Keeping for compatibility with existing components if any, but ideally unused
-export const SERVICES: Service[] = []; 
-export const PRICING_TIERS: PricingTier[] = [];
-
 export const TESTIMONIALS: Testimonial[] = [
   {
     id: 1,
-    ownerName: "Erica",
-    dogName: "Cotton",
-    breed: "Japanese Spitz",
-    text: "Cotton feels so at home here. I never have to worry about cages or her being lonely. The daily WhatsApp updates are the highlight of my day when I'm away. Truly a premier boarding experience in KL!",
+    ownerName: "Happy Owner",
+    dogName: "Guest",
+    breed: "Verified Stay",
+    text: "Review from our happy client about their pet's stay with us.",
     rating: 5,
-    imageUrl: "/assets/dog-spitz.jpg"
+    imageUrl: "/assets/Reviews1.png"
   },
   {
     id: 2,
-    ownerName: "Wei Ren",
-    dogName: "Cooper",
-    breed: "Golden Retriever",
-    text: "The space is amazing and very clean. Cooper always comes back happy and well-rested. It's rare to find a place that handles large breeds with so much care and attention to detail.",
+    ownerName: "Happy Owner",
+    dogName: "Guest",
+    breed: "Verified Stay",
+    text: "Another wonderful review highlight from a satisfied customer.",
     rating: 5,
-    imageUrl: "/assets/dog-golden.jpg"
+    imageUrl: "/assets/Reviews2.png"
   },
   {
     id: 3,
-    ownerName: "Sarah L.",
-    dogName: "Mochi",
-    breed: "Poodle",
-    text: "Professional, transparent, and most importantly, loving. They even prepared fresh meals for Mochi when she was being a picky eater. Highly recommend for any pawrent!",
+    ownerName: "Happy Owner",
+    dogName: "Guest",
+    breed: "Verified Stay",
+    text: "Excellent service and care for our furkids!",
     rating: 5,
-    imageUrl: "/assets/dog-food.jpg"
+    imageUrl: "/assets/Reviews3.png"
+  },
+  {
+    id: 4,
+    ownerName: "Happy Owner",
+    dogName: "Guest",
+    breed: "Verified Stay",
+    text: "Highly recommended for pet boarding in KL.",
+    rating: 5,
+    imageUrl: "/assets/Reviews4.png"
+  },
+  {
+    id: 5,
+    ownerName: "Happy Owner",
+    dogName: "Guest",
+    breed: "Verified Stay",
+    text: "Always trust My Pawcation for my pets.",
+    rating: 5,
+    imageUrl: "/assets/Reviews5.png"
+  },
+  {
+    id: 6,
+    ownerName: "Happy Owner",
+    dogName: "Guest",
+    breed: "Verified Stay",
+    text: "Great experience every single time.",
+    rating: 5,
+    imageUrl: "/assets/Reviews6.png"
   }
 ];
 
@@ -189,13 +210,11 @@ export const FAQS: FaqItem[] = [
 ];
 
 export const CONTACT_INFO = {
-  address: "No. 5, Jalan Badam 5, Taman Rakyat, Cheras, 56100 Kuala Lumpur",
+  address: "Endah Regal Condominium, Jalan 1/149e, Sri Petaling, 57000 Kuala Lumpur",
   whatsapp: "+60 17-384 0723",
-  email: "hello@mypawcation.com", // Assuming email stays same or generic if not provided
+  email: "hello@mypawcation.com",
   facebook: "https://www.facebook.com/mypawcation",
   instagram: "https://www.instagram.com/mypawcation",
   xiaohongshu: "https://www.xiaohongshu.com/user/profile/67f11577000000000e01dc26",
   website: "https://my-pawcation.vercel.app/"
 };
-
-export const FACILITIES: Facility[] = [];

@@ -94,9 +94,9 @@ export const BookingForm: React.FC = () => {
 
     if (status === 'success') {
         return (
-            <section id="booking" className="py-24 bg-white scroll-mt-32">
+            <section id="booking" className="py-12 bg-white scroll-mt-24">
                 <div className="max-w-4xl mx-auto px-4">
-                    <Card className="p-12 text-center space-y-6 border-2 border-brand-green">
+                    <Card className="p-10 text-center space-y-6 border-2 border-brand-green">
                         <div className="w-20 h-20 bg-brand-green/10 text-brand-green rounded-full flex items-center justify-center mx-auto text-4xl">
                             ✓
                         </div>
@@ -112,9 +112,9 @@ export const BookingForm: React.FC = () => {
     }
 
     return (
-        <section id="booking" className="py-24 bg-brand-cream relative scroll-mt-32">
+        <section id="booking" className="py-12 bg-brand-cream relative scroll-mt-24">
             <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-                <div className="bg-brand-brown rounded-[3rem] p-6 md:p-16 shadow-2xl overflow-hidden relative">
+                <div className="bg-brand-brown rounded-[2.5rem] p-6 md:p-10 shadow-2xl overflow-hidden relative">
                     {/* Background pattern */}
                     <div className="absolute top-0 right-0 w-96 h-96 bg-brand-green/20 rounded-full blur-3xl -mr-32 -mt-32"></div>
                     <div className="absolute bottom-0 left-0 w-96 h-96 bg-brand-accent/10 rounded-full blur-3xl -ml-32 -mb-32"></div>

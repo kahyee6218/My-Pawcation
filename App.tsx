@@ -1,6 +1,6 @@
 import React from 'react';
 import { Navbar, Footer } from './components/ui/Layout';
-import { Hero, AboutPreview, WhyChooseUs, DailyRoutine, HowItWorks } from './components/sections/HomeSections';
+import { MainHero, AboutPreview, WhyChooseUs, DailyRoutine, HowItWorks } from './components/sections/HomeSections';
 import { Testimonials, Pricing, FAQ } from './components/sections/DetailSections';
 import { BookingForm } from './components/sections/BookingForm';
 import { CONTACT_INFO } from './constants';
@@ -11,7 +11,7 @@ function App() {
       <Navbar />
 
       <main className="flex-grow">
-        <Hero />
+        <MainHero />
         <AboutPreview />
         <WhyChooseUs />
         <DailyRoutine />

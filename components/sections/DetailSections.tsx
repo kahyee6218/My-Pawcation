@@ -13,84 +13,23 @@ export const Testimonials: React.FC = () => {
     );
 
     return (
-        <section id="reviews" className="py-24 bg-white scroll-mt-32">
+        <section id="reviews" className="py-12 bg-white scroll-mt-24">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <SectionTitle title="Happy Tails" subtitle="Reviews" />
+                <SectionTitle title="Happy Tails" subtitle="WhatsApp Reviews" />
 
-                <div className="grid grid-cols-1 lg:grid-cols-12 gap-12">
-                    <div className="lg:col-span-4 space-y-6">
-                        <div className="bg-brand-cream p-8 rounded-3xl">
-                            <h3 className="text-2xl font-bold text-brand-dark mb-2">4.9/5 Rating</h3>
-                            <div className="flex text-yellow-400 mb-4">
-                                {[...Array(5)].map((_, i) => <Star key={i} fill="currentColor" size={24} />)}
-                            </div>
-                            <p className="text-stone-600">Based on over 500+ happy stays. We take pride in every wagging tail.</p>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {TESTIMONIALS.map(review => (
+                        <div key={review.id} className="group">
+                            <Card className="p-0 overflow-hidden hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-2 border-none">
+                                <img
+                                    src={review.imageUrl}
+                                    alt={`WhatsApp Review ${review.id}`}
+                                    className="w-full h-auto object-cover"
+                                />
+                                <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/20 to-transparent h-12 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                            </Card>
                         </div>
-
-                        <div className="p-6 bg-brand-green/10 rounded-3xl border border-brand-green/20">
-                            <h4 className="font-bold text-brand-dark mb-2">Real Feedback</h4>
-                            <p className="text-sm text-stone-600">All reviews are from verified pet owners who have trusted us with their furkids.</p>
-                        </div>
-                    </div>
-
-                    <div className="lg:col-span-8">
-                        <div className="mb-8 relative max-w-md">
-                            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                <Search className="h-5 w-5 text-gray-400" />
-                            </div>
-                            <input
-                                type="text"
-                                className="block w-full pl-10 pr-3 py-3 border border-gray-200 rounded-full leading-5 bg-white placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-brand-green focus:border-brand-green sm:text-sm transition-shadow shadow-sm hover:shadow-md"
-                                placeholder="Search reviews..."
-                                value={searchTerm}
-                                onChange={(e) => setSearchTerm(e.target.value)}
-                            />
-                        </div>
-
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            {filteredTestimonials.length > 0 ? (
-                                filteredTestimonials.map(review => (
-                                    <div key={review.id} className="h-full">
-                                        <Card className="p-6 h-full hover:shadow-lg transition-shadow duration-300 flex flex-col">
-                                            <div className="flex items-center gap-4 mb-4">
-                                                <img
-                                                    src={review.imageUrl}
-                                                    alt={review.dogName}
-                                                    className="w-14 h-14 rounded-full object-cover border-2 border-brand-green"
-                                                />
-                                                <div>
-                                                    <h4 className="font-bold text-brand-dark">{review.ownerName} & {review.dogName}</h4>
-                                                    <p className="text-xs text-stone-500 uppercase tracking-wide">{review.breed}</p>
-                                                </div>
-                                            </div>
-
-                                            <div className="flex text-yellow-400 mb-3">
-                                                {[...Array(5)].map((_, i) => (
-                                                    <Star
-                                                        key={i}
-                                                        size={16}
-                                                        fill={i < review.rating ? "currentColor" : "none"}
-                                                        className={i < review.rating ? "text-yellow-400" : "text-gray-200"}
-                                                    />
-                                                ))}
-                                            </div>
-
-                                            <div className="relative flex-grow">
-                                                <span className="absolute -top-2 -left-2 text-4xl text-brand-sand/40 font-serif leading-none">"</span>
-                                                <p className="text-stone-600 relative z-10 text-sm leading-relaxed italic pl-2">
-                                                    {review.text}
-                                                </p>
-                                            </div>
-                                        </Card>
-                                    </div>
-                                ))
-                            ) : (
-                                <div className="w-full text-center py-12 col-span-2">
-                                    <p className="text-stone-500 text-lg">No reviews found.</p>
-                                </div>
-                            )}
-                        </div>
-                    </div>
+                    ))}
                 </div>
             </div>
         </section>
@@ -101,42 +40,41 @@ export const Pricing: React.FC = () => {
     const [activeTab, setActiveTab] = useState<'dogs' | 'cats'>('dogs');
 
     return (
-        <section id="pricing" className="py-24 bg-brand-cream scroll-mt-32">
+        <section id="pricing" className="py-12 bg-brand-cream scroll-mt-24">
             <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
                 <SectionTitle title="Transparent Pricing" subtitle="Affordable Care" />
 
                 {/* Tabs */}
-                <div className="flex justify-center mb-12">
-                    <div className="bg-white p-1.5 rounded-full shadow-sm inline-flex">
+                <div className="flex justify-center mb-8">
+                    <div className="bg-white p-1 rounded-full shadow-sm inline-flex">
                         <button
                             onClick={() => setActiveTab('dogs')}
-                            className={`px-8 py-3 rounded-full text-sm font-bold transition-all duration-300 flex items-center gap-2 ${activeTab === 'dogs' ? 'bg-brand-green text-white shadow-md' : 'text-stone-500 hover:bg-stone-100'}`}
+                            className={`px-6 py-2 rounded-full text-sm font-bold transition-all duration-300 flex items-center gap-2 ${activeTab === 'dogs' ? 'bg-brand-green text-white shadow-md' : 'text-stone-500 hover:bg-stone-100'}`}
                         >
-                            <Dog size={18} />
+                            <Dog size={16} />
                             Dogs
                         </button>
                         <button
                             onClick={() => setActiveTab('cats')}
-                            className={`px-8 py-3 rounded-full text-sm font-bold transition-all duration-300 flex items-center gap-2 ${activeTab === 'cats' ? 'bg-brand-brown text-white shadow-md' : 'text-stone-500 hover:bg-stone-100'}`}
+                            className={`px-6 py-2 rounded-full text-sm font-bold transition-all duration-300 flex items-center gap-2 ${activeTab === 'cats' ? 'bg-brand-brown text-white shadow-md' : 'text-stone-500 hover:bg-stone-100'}`}
                         >
-                            <Cat size={18} />
+                            <Cat size={16} />
                             Cats / Rabbits
                         </button>
                     </div>
                 </div>
 
                 {/* Content */}
-                <div className="space-y-12 animate-fade-in">
+                <div className="space-y-8 animate-fade-in">
                     {activeTab === 'dogs' ? (
                         <>
                             {/* Dogs Daycare & Boarding Tables */}
-                            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                                 <PricingTable
                                     title="Day Care"
                                     subtitle="Fun & Socialization"
                                     data={PRICING_DATA.dogs.daycare}
                                     columns={['Size', 'Normal', 'Peak']}
-                                    footerText="Peak Season: Public Holidays, School Holidays, Festive Seasons"
                                 />
                                 <PricingTable
                                     title="Boarding (Per Night)"
@@ -148,15 +86,20 @@ export const Pricing: React.FC = () => {
                             </div>
 
                             {/* Monthly & Grooming */}
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                 <ListCard title="Monthly Boarding Packages" icon={Home} items={PRICING_DATA.dogs.monthly} />
-                                <ListCard title="Basic Grooming" icon={Scissors} items={PRICING_DATA.dogs.grooming} />
+                                <PricingTable
+                                    title="Basic Grooming"
+                                    subtitle="Spa Day"
+                                    data={PRICING_DATA.dogs.grooming}
+                                    columns={['Size', 'Normal', 'Peak']}
+                                />
                             </div>
                         </>
                     ) : (
                         <>
                             {/* Cats Daycare & Boarding */}
-                            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                                 <PricingTable
                                     title="Day Care"
                                     subtitle="Cat / Rabbit"
@@ -167,7 +110,7 @@ export const Pricing: React.FC = () => {
                                     title="Boarding (Per Night)"
                                     subtitle="Cat / Rabbit"
                                     data={PRICING_DATA.cats_rabbits.boarding}
-                                    columns={['Type', 'Price']}
+                                    columns={['Type', 'Normal', 'Peak']}
                                     highlight
                                 />
                             </div>
@@ -179,16 +122,16 @@ export const Pricing: React.FC = () => {
                 </div>
 
                 {/* Add-ons */}
-                <div className="mt-16">
-                    <div className="bg-white rounded-3xl p-8 border border-brand-sand/30 shadow-sm">
-                        <h3 className="text-xl font-bold text-brand-dark mb-6 flex items-center gap-2">
-                            <Plus size={20} className="text-brand-green" /> Add-On Services
+                <div className="mt-12">
+                    <div className="bg-white rounded-3xl p-6 border border-brand-sand/30 shadow-sm">
+                        <h3 className="text-lg font-bold text-brand-dark mb-4 flex items-center gap-2">
+                            <Plus size={18} className="text-brand-green" /> Add-On Services
                         </h3>
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                             {PRICING_DATA.addons.map((addon, idx) => (
-                                <div key={idx} className="flex justify-between items-center p-4 bg-brand-cream rounded-xl">
-                                    <span className="text-stone-700 font-medium text-sm">{addon.service}</span>
-                                    <span className="font-bold text-brand-green text-sm">{addon.price}</span>
+                                <div key={idx} className="flex justify-between items-center p-3 bg-brand-cream rounded-xl">
+                                    <span className="text-stone-700 font-medium text-xs">{addon.service}</span>
+                                    <span className="font-bold text-brand-green text-xs">{addon.price}</span>
                                 </div>
                             ))}
                         </div>
@@ -196,8 +139,8 @@ export const Pricing: React.FC = () => {
                 </div>
 
                 {/* Peak Season Note */}
-                <div className="mt-8 flex items-start gap-3 bg-brand-blue/10 p-4 rounded-xl text-sm text-stone-600">
-                    <Info size={18} className="text-brand-blue shrink-0 mt-0.5" />
+                <div className="mt-6 flex items-start gap-3 bg-brand-blue/10 p-3 rounded-xl text-xs text-stone-600">
+                    <Info size={16} className="text-brand-blue shrink-0 mt-0.5" />
                     <p><strong>Note:</strong> Peak Season rates apply during Public Holidays, School Holidays, and Festive Seasons. Prices are subject to change without prior notice.</p>
                 </div>
             </div>
