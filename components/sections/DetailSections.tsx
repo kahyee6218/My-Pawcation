@@ -5,51 +5,46 @@ import { TESTIMONIALS, FAQS, PRICING_DATA } from '../../constants';
 
 export const Testimonials: React.FC = () => {
     const [currentIndex, setCurrentIndex] = useState(0);
-
-    // We'll use CSS classes for responsiveness, 
-    // but the JS translation needs to match the visual width.
-    // On Desktop: 8 items, Tablet: 5 items, Mobile: 3 items
+    // Duplicate items to ensure we never see "Nothing here" when scrolling
+    const extendedTestimonials = [...TESTIMONIALS, ...TESTIMONIALS];
+    const total = TESTIMONIALS.length;
 
     const next = () => {
-        // Loop back to start if at the end
-        setCurrentIndex((prev) => (prev + 1) >= TESTIMONIALS.length ? 0 : prev + 1);
+        setCurrentIndex((prev) => (prev + 1) % total);
     };
 
     const prev = () => {
-        setCurrentIndex((prev) => (prev - 1 + TESTIMONIALS.length) % TESTIMONIALS.length);
+        setCurrentIndex((prev) => (prev - 1 + total) % total);
     };
 
     return (
-        <section id="reviews" className="py-12 bg-white scroll-mt-24 overflow-hidden">
+        <section id="reviews" className="py-10 bg-white scroll-mt-24 overflow-hidden">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <SectionTitle title="Happy Tails" subtitle="WhatsApp Reviews" />
 
-                <div className="relative group max-w-5xl mx-auto">
+                <div className="relative group max-w-4xl mx-auto">
                     {/* Carousel Viewport */}
-                    <div className="overflow-hidden px-1">
+                    <div className="overflow-hidden">
                         <div
-                            className="flex transition-transform duration-300 ease-in-out gap-2 md:gap-3"
+                            className="flex transition-transform duration-500 ease-in-out gap-2 md:gap-3"
                             style={{
-                                // Calculation: Move by 1 item's percentage width
-                                // Each item is 100/N % of the container
-                                transform: `translateX(calc(-${currentIndex} * (100% / 3 + 0.5rem)))`, /* Mobile default (3 items) */
-                            }}
+                                // On Mobile: 4 items (25%), Tablet: 6 items (16.6%), Desktop: 8 items (12.5%)
+                                // We'll move by 1 item at a time
+                                transform: `translateX(calc(-${currentIndex} * (100% / var(--items-per-row, 4) + var(--gap-fix, 0.5rem))))`
+                            } as any}
                         >
-                            {/* We'll use Tailwind classes to override the calc on larger screens */}
+                            {/* Inject CSS variables for responsive movement */}
                             <style>{`
-                                @media (min-width: 768px) {
-                                    #testimonial-track { transform: translateX(calc(-${currentIndex} * (100% / 5 + 0.75rem))) !important; }
-                                }
-                                @media (min-width: 1024px) {
-                                    #testimonial-track { transform: translateX(calc(-${currentIndex} * (100% / 8 + 0.75rem))) !important; }
-                                }
+                                #review-track { --items-per-row: 4; --gap-fix: 0.5rem; }
+                                @media (min-width: 768px) { #review-track { --items-per-row: 6; --gap-fix: 0.75rem; } }
+                                @media (min-width: 1024px) { #review-track { --items-per-row: 8; --gap-fix: 0.75rem; } }
                             `}</style>
-                            <div id="testimonial-track" className="flex gap-2 md:gap-3 shrink-0 transition-transform duration-300 ease-in-out">
-                                {TESTIMONIALS.map((review) => (
+
+                            <div id="review-track" className="flex gap-2 md:gap-3 shrink-0 transition-transform duration-500 ease-in-out">
+                                {extendedTestimonials.map((review, idx) => (
                                     <div
-                                        key={review.id}
-                                        className="w-[calc(100vw/3.5)] md:w-[calc(1024px/5.5)] lg:w-[calc(1280px/9)] shrink-0"
-                                        style={{ width: 'clamp(80px, 11%, 140px)' }} /* Fixed-ish small size */
+                                        key={`${review.id}-${idx}`}
+                                        className="w-[calc((100vw-3rem)/4.5)] md:w-[calc(896px/6.5)] lg:w-[calc(896px/8.5)] shrink-0"
                                     >
                                         <Card className="p-0 overflow-hidden shadow-sm hover:shadow-md transition-all border border-stone-100 aspect-square bg-gray-50 rounded-lg">
                                             <img
@@ -65,20 +60,20 @@ export const Testimonials: React.FC = () => {
                         </div>
                     </div>
 
-                    {/* Navigation Buttons - More prominent for "Next" logic */}
+                    {/* Navigation Buttons - Smaller and cleaner */}
                     <button
                         onClick={prev}
-                        className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-2 md:-translate-x-4 bg-white p-2 rounded-full shadow-lg text-brand-dark hover:bg-brand-green hover:text-white transition-all z-10 border border-stone-100"
+                        className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-3 md:-translate-x-5 bg-white p-1.5 rounded-full shadow-md text-brand-dark hover:bg-brand-green hover:text-white transition-all z-10 border border-stone-100"
                         aria-label="Previous Review"
                     >
-                        <ChevronLeft size={18} />
+                        <ChevronLeft size={16} />
                     </button>
                     <button
                         onClick={next}
-                        className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-2 md:translate-x-4 bg-white p-2 rounded-full shadow-lg text-brand-dark hover:bg-brand-green hover:text-white transition-all z-10 border border-stone-100"
+                        className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-3 md:translate-x-5 bg-white p-1.5 rounded-full shadow-md text-brand-dark hover:bg-brand-green hover:text-white transition-all z-10 border border-stone-100"
                         aria-label="Next Review"
                     >
-                        <ChevronRight size={18} />
+                        <ChevronRight size={16} />
                     </button>
 
                     {/* Pagination Dots */}
@@ -275,22 +270,22 @@ export const FAQ: React.FC = () => {
             <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
                 <SectionTitle title="Common Questions" subtitle="FAQ" />
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-2">
                     {FAQS.map((item, index) => (
-                        <div key={index} className="border-b border-stone-200 last:border-0 md:last:border-b h-fit group">
+                        <div key={index} className="border-b border-stone-100 last:border-0 md:last:border-b h-fit group">
                             <button
-                                className="w-full py-4 text-left flex justify-between items-start focus:outline-none transition-colors gap-4"
+                                className="w-full py-3 text-left flex justify-between items-start focus:outline-none transition-colors gap-3"
                                 onClick={() => setOpenIndex(openIndex === index ? null : index)}
                             >
-                                <span className="font-bold text-brand-dark text-sm leading-tight pt-0.5 group-hover:text-brand-green transition-colors">{item.question}</span>
-                                <div className={`shrink-0 transition-transform duration-300 ${openIndex === index ? 'rotate-180 text-brand-green' : 'text-stone-400'}`}>
-                                    <Plus size={16} />
+                                <span className="font-bold text-brand-dark text-[13px] leading-tight pt-0.5 group-hover:text-brand-green transition-colors">{item.question}</span>
+                                <div className={`shrink-0 transition-transform duration-300 mt-0.5 ${openIndex === index ? 'rotate-180 text-brand-green' : 'text-stone-400'}`}>
+                                    <Plus size={14} />
                                 </div>
                             </button>
                             <div
-                                className={`transition-all duration-300 ease-in-out overflow-hidden ${openIndex === index ? 'max-h-64 pb-4 opacity-100' : 'max-h-0 opacity-0'}`}
+                                className={`transition-all duration-300 ease-in-out overflow-hidden ${openIndex === index ? 'max-h-64 pb-3 opacity-100' : 'max-h-0 opacity-0'}`}
                             >
-                                <p className="text-stone-600 leading-relaxed text-xs pl-0">{item.answer}</p>
+                                <p className="text-stone-500 leading-relaxed text-[11px] pl-0">{item.answer}</p>
                             </div>
                         </div>
                     ))}
