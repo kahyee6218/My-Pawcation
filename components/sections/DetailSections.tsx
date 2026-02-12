@@ -5,6 +5,8 @@ import { TESTIMONIALS, FAQS, PRICING_DATA } from '../../constants';
 
 export const Testimonials: React.FC = () => {
     const [currentIndex, setCurrentIndex] = useState(0);
+    const [selectedImage, setSelectedImage] = useState<string | null>(null);
+
     // Duplicate items to ensure we never see "Nothing here" when scrolling
     const extendedTestimonials = [...TESTIMONIALS, ...TESTIMONIALS];
     const total = TESTIMONIALS.length;
@@ -46,14 +48,19 @@ export const Testimonials: React.FC = () => {
                                         key={`${review.id}-${idx}`}
                                         className="w-[calc((100vw-3rem)/4.5)] md:w-[calc(896px/6.5)] lg:w-[calc(896px/8.5)] shrink-0"
                                     >
-                                        <Card className="p-0 overflow-hidden shadow-sm hover:shadow-md transition-all border border-stone-100 aspect-square bg-gray-50 rounded-lg">
-                                            <img
-                                                src={review.imageUrl}
-                                                alt={`WhatsApp Review ${review.id}`}
-                                                className="w-full h-full object-cover"
-                                                loading="lazy"
-                                            />
-                                        </Card>
+                                        <button
+                                            onClick={() => setSelectedImage(review.imageUrl)}
+                                            className="w-full text-left focus:outline-none"
+                                        >
+                                            <Card className="p-0 overflow-hidden shadow-sm hover:shadow-md hover:scale-[1.02] transition-all border border-stone-100 aspect-square bg-gray-50 rounded-lg cursor-zoom-in">
+                                                <img
+                                                    src={review.imageUrl}
+                                                    alt={`WhatsApp Review ${review.id}`}
+                                                    className="w-full h-full object-cover"
+                                                    loading="lazy"
+                                                />
+                                            </Card>
+                                        </button>
                                     </div>
                                 ))}
                             </div>
@@ -88,6 +95,27 @@ export const Testimonials: React.FC = () => {
                     </div>
                 </div>
             </div>
+
+            {/* Lightbox Modal */}
+            {selectedImage && (
+                <div
+                    className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 p-4 animate-in fade-in duration-200"
+                    onClick={() => setSelectedImage(null)}
+                >
+                    <button
+                        className="absolute top-6 right-6 text-white hover:text-brand-green transition-colors"
+                        onClick={() => setSelectedImage(null)}
+                    >
+                        <Minus size={32} className="rotate-45" /> {/* Close icon using Minus rotated */}
+                    </button>
+                    <img
+                        src={selectedImage}
+                        alt="Enlarged Review"
+                        className="max-w-full max-h-[90vh] object-contain rounded-lg shadow-2xl animate-in zoom-in-95 duration-300"
+                        onClick={(e) => e.stopPropagation()}
+                    />
+                </div>
+            )}
         </section>
     );
 };
