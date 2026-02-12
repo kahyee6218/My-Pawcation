@@ -1,5 +1,5 @@
 import React from 'react';
-import { ArrowRight, CheckCircle, Clock } from 'lucide-react';
+import { ArrowRight, CheckCircle, Clock, Check, ShieldCheck } from 'lucide-react';
 import { Button, SectionTitle, Card } from '../ui/Elements';
 import { WHY_CHOOSE_US, DAILY_ROUTINE, HYGIENE_SOP } from '../../constants';
 
@@ -151,22 +151,39 @@ export const DailyRoutine: React.FC = () => {
             </div>
           </div>
 
-          <div className="bg-brand-brown p-8 lg:p-10 rounded-[2.5rem] relative overflow-hidden text-white">
-            <div className="absolute top-0 right-0 w-48 h-48 bg-white/10 rounded-full blur-3xl -mr-12 -mt-12"></div>
+          <div className="bg-[#5D4037] p-8 lg:p-12 rounded-[2.5rem] relative overflow-hidden text-white shadow-2xl h-full flex flex-col justify-between">
+            {/* Decorative elements */}
+            <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full blur-3xl -mr-16 -mt-16 pointer-events-none"></div>
+            <div className="absolute bottom-0 left-0 w-48 h-48 bg-black/10 rounded-full blur-2xl -ml-12 -mb-12 pointer-events-none"></div>
 
-            <SectionTitle title="Hygiene & Safety SOP" subtitle="Our Standards" centered={false} className="text-white" />
+            <div className="relative z-10">
+              {/* Custom Tag */}
+              <span className="inline-block py-2 px-5 rounded-full bg-[#7CB342]/20 text-[#DCEDC8] text-xs font-bold uppercase tracking-[0.2em] mb-8 border border-[#7CB342]/30 backdrop-blur-sm">
+                Our Standards
+              </span>
 
-            <ul className="space-y-3 relative z-10">
-              {HYGIENE_SOP.map((item, index) => (
-                <li key={index} className="flex items-start gap-3">
-                  <CheckCircle className="text-brand-accent shrink-0 mt-1" size={18} />
-                  <span className="text-base text-brand-cream/90">{item}</span>
-                </li>
-              ))}
-            </ul>
+              {/* Yellow Line Divider */}
+              <div className="w-20 h-1.5 bg-[#FFB300] rounded-full mb-8"></div>
 
-            <div className="mt-6 pt-6 border-t border-white/20">
-              <p className="font-bold text-brand-accent text-base">Your pet’s safety and health always come first.</p>
+              {/* List */}
+              <ul className="space-y-5">
+                {HYGIENE_SOP.map((item, index) => (
+                  <li key={index} className="flex items-start gap-4 group">
+                    <div className="mt-1 w-6 h-6 rounded-full border-[1.5px] border-[#FFB300] flex items-center justify-center shrink-0 group-hover:bg-[#FFB300] transition-colors duration-300">
+                      <Check size={14} className="text-[#FFB300] group-hover:text-[#5D4037] transition-colors duration-300" strokeWidth={3} />
+                    </div>
+                    <span className="text-lg text-[#EFEBE9] font-medium leading-relaxed group-hover:text-white transition-colors">{item}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+
+            {/* Footer */}
+            <div className="mt-10 pt-8 border-t border-white/10 relative z-10">
+              <p className="font-display font-bold text-[#FFB300] text-lg tracking-wide flex items-center gap-3">
+                <ShieldCheck size={22} className="shrink-0" />
+                Your pet’s safety and health always come first.
+              </p>
             </div>
           </div>
         </div>
