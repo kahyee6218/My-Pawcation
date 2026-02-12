@@ -1,4 +1,4 @@
-import React from 'react';
+import * as React from 'react';
 import { Navbar, Footer } from './components/ui/Layout';
 import { MainHero, AboutPreview, WhyChooseUs, DailyRoutine, HowItWorks } from './components/sections/HomeSections';
 import { Testimonials, Pricing, FAQ } from './components/sections/DetailSections';
