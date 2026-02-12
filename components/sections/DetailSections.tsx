@@ -5,10 +5,14 @@ import { TESTIMONIALS, FAQS, PRICING_DATA } from '../../constants';
 
 export const Testimonials: React.FC = () => {
     const [currentIndex, setCurrentIndex] = useState(0);
-    const reviewsPerView = { mobile: 2, tablet: 4, desktop: 8 };
+
+    // We'll use CSS classes for responsiveness, 
+    // but the JS translation needs to match the visual width.
+    // On Desktop: 8 items, Tablet: 5 items, Mobile: 3 items
 
     const next = () => {
-        setCurrentIndex((prev) => (prev + 1) % TESTIMONIALS.length);
+        // Loop back to start if at the end
+        setCurrentIndex((prev) => (prev + 1) >= TESTIMONIALS.length ? 0 : prev + 1);
     };
 
     const prev = () => {
@@ -16,49 +20,74 @@ export const Testimonials: React.FC = () => {
     };
 
     return (
-        <section id="reviews" className="py-8 bg-white scroll-mt-24 overflow-hidden">
+        <section id="reviews" className="py-12 bg-white scroll-mt-24 overflow-hidden">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <SectionTitle title="Happy Tails" subtitle="WhatsApp Reviews" />
 
-                <div className="relative group max-w-7xl mx-auto">
-                    {/* Carousel Container */}
-                    <div className="flex transition-transform duration-300 ease-out gap-4"
-                        style={{ transform: `translateX(-${currentIndex * (100 / reviewsPerView.desktop)}%)` }}>
-                        {TESTIMONIALS.map((review) => (
-                            <div key={review.id} className="min-w-[45%] md:min-w-[22%] lg:min-w-[11.5%] flex-shrink-0">
-                                <Card className="p-0 overflow-hidden shadow-md hover:shadow-xl transition-all border-none aspect-square bg-gray-100">
-                                    <img
-                                        src={review.imageUrl}
-                                        alt={`WhatsApp Review ${review.id}`}
-                                        className="w-full h-full object-cover"
-                                        loading="lazy"
-                                    />
-                                </Card>
+                <div className="relative group max-w-5xl mx-auto">
+                    {/* Carousel Viewport */}
+                    <div className="overflow-hidden px-1">
+                        <div
+                            className="flex transition-transform duration-300 ease-in-out gap-2 md:gap-3"
+                            style={{
+                                // Calculation: Move by 1 item's percentage width
+                                // Each item is 100/N % of the container
+                                transform: `translateX(calc(-${currentIndex} * (100% / 3 + 0.5rem)))`, /* Mobile default (3 items) */
+                            }}
+                        >
+                            {/* We'll use Tailwind classes to override the calc on larger screens */}
+                            <style>{`
+                                @media (min-width: 768px) {
+                                    #testimonial-track { transform: translateX(calc(-${currentIndex} * (100% / 5 + 0.75rem))) !important; }
+                                }
+                                @media (min-width: 1024px) {
+                                    #testimonial-track { transform: translateX(calc(-${currentIndex} * (100% / 8 + 0.75rem))) !important; }
+                                }
+                            `}</style>
+                            <div id="testimonial-track" className="flex gap-2 md:gap-3 shrink-0 transition-transform duration-300 ease-in-out">
+                                {TESTIMONIALS.map((review) => (
+                                    <div
+                                        key={review.id}
+                                        className="w-[calc(100vw/3.5)] md:w-[calc(1024px/5.5)] lg:w-[calc(1280px/9)] shrink-0"
+                                        style={{ width: 'clamp(80px, 11%, 140px)' }} /* Fixed-ish small size */
+                                    >
+                                        <Card className="p-0 overflow-hidden shadow-sm hover:shadow-md transition-all border border-stone-100 aspect-square bg-gray-50 rounded-lg">
+                                            <img
+                                                src={review.imageUrl}
+                                                alt={`WhatsApp Review ${review.id}`}
+                                                className="w-full h-full object-cover"
+                                                loading="lazy"
+                                            />
+                                        </Card>
+                                    </div>
+                                ))}
                             </div>
-                        ))}
+                        </div>
                     </div>
 
-                    {/* Navigation Buttons */}
+                    {/* Navigation Buttons - More prominent for "Next" logic */}
                     <button
                         onClick={prev}
-                        className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-2 md:-translate-x-6 bg-white/95 p-2 rounded-full shadow-lg text-brand-dark hover:bg-brand-green hover:text-white transition-all z-10 opacity-0 group-hover:opacity-100 border border-stone-100"
+                        className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-2 md:-translate-x-4 bg-white p-2 rounded-full shadow-lg text-brand-dark hover:bg-brand-green hover:text-white transition-all z-10 border border-stone-100"
+                        aria-label="Previous Review"
                     >
-                        <ChevronLeft size={20} />
+                        <ChevronLeft size={18} />
                     </button>
                     <button
                         onClick={next}
-                        className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-2 md:translate-x-6 bg-white/95 p-2 rounded-full shadow-lg text-brand-dark hover:bg-brand-green hover:text-white transition-all z-10 opacity-0 group-hover:opacity-100 border border-stone-100"
+                        className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-2 md:translate-x-4 bg-white p-2 rounded-full shadow-lg text-brand-dark hover:bg-brand-green hover:text-white transition-all z-10 border border-stone-100"
+                        aria-label="Next Review"
                     >
-                        <ChevronRight size={20} />
+                        <ChevronRight size={18} />
                     </button>
 
                     {/* Pagination Dots */}
-                    <div className="flex justify-center gap-2 mt-8">
+                    <div className="flex justify-center gap-1.5 mt-6">
                         {TESTIMONIALS.map((_, idx) => (
                             <button
                                 key={idx}
                                 onClick={() => setCurrentIndex(idx)}
-                                className={`h-1.5 w-1.5 rounded-full transition-all ${currentIndex === idx ? 'bg-brand-green w-4' : 'bg-stone-200'}`}
+                                className={`h-1 w-1 rounded-full transition-all ${currentIndex === idx ? 'bg-brand-green w-3' : 'bg-stone-200'}`}
                             />
                         ))}
                     </div>
@@ -242,26 +271,26 @@ export const FAQ: React.FC = () => {
     const [openIndex, setOpenIndex] = useState<number | null>(0);
 
     return (
-        <section id="faq" className="py-16 bg-brand-sand/20 scroll-mt-32">
+        <section id="faq" className="py-16 bg-brand-cream/30 scroll-mt-32">
             <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
                 <SectionTitle title="Common Questions" subtitle="FAQ" />
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-4">
                     {FAQS.map((item, index) => (
-                        <div key={index} className="bg-white rounded-xl overflow-hidden shadow-sm border border-brand-sand/20 h-fit">
+                        <div key={index} className="border-b border-stone-200 last:border-0 md:last:border-b h-fit group">
                             <button
-                                className="w-full px-5 py-4 text-left flex justify-between items-start focus:outline-none hover:bg-brand-cream/50 transition-colors gap-3"
+                                className="w-full py-4 text-left flex justify-between items-start focus:outline-none transition-colors gap-4"
                                 onClick={() => setOpenIndex(openIndex === index ? null : index)}
                             >
-                                <span className="font-bold text-brand-dark text-sm leading-tight pt-0.5">{item.question}</span>
-                                <div className={`shrink-0 p-1 rounded-full transition-colors mt-0.5 ${openIndex === index ? 'bg-brand-green text-white' : 'bg-brand-cream text-brand-dark'}`}>
-                                    {openIndex === index ? <Minus size={12} /> : <Plus size={12} />}
+                                <span className="font-bold text-brand-dark text-sm leading-tight pt-0.5 group-hover:text-brand-green transition-colors">{item.question}</span>
+                                <div className={`shrink-0 transition-transform duration-300 ${openIndex === index ? 'rotate-180 text-brand-green' : 'text-stone-400'}`}>
+                                    <Plus size={16} />
                                 </div>
                             </button>
                             <div
-                                className={`px-5 transition-all duration-300 ease-in-out ${openIndex === index ? 'max-h-64 pb-5 opacity-100' : 'max-h-0 opacity-0 overflow-hidden'}`}
+                                className={`transition-all duration-300 ease-in-out overflow-hidden ${openIndex === index ? 'max-h-64 pb-4 opacity-100' : 'max-h-0 opacity-0'}`}
                             >
-                                <p className="text-stone-600 leading-relaxed text-xs border-t border-gray-100 pt-3">{item.answer}</p>
+                                <p className="text-stone-600 leading-relaxed text-xs pl-0">{item.answer}</p>
                             </div>
                         </div>
                     ))}
