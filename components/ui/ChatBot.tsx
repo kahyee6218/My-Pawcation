@@ -3,6 +3,9 @@ import { useState, useEffect, useRef } from 'react';
 import { X, Send, User, Bot, Loader2, MessageSquare, Headphones, MoreHorizontal, Sparkles } from 'lucide-react';
 import { CONTACT_INFO, PRICING_DATA, FAQS } from '../../constants';
 import { supabase } from '../../lib/supabase';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
+import { getChatResponse } from '../../services/gemini';
 
 type Message = {
     id: string;
@@ -11,26 +14,18 @@ type Message = {
     options?: string[];
 };
 
-type ChatState = 'idle' | 'asking_booking_type' | 'asking_dog_size' | 'asking_dates' | 'giving_advice';
-
 export const ChatBot: React.FC = () => {
     const [isOpen, setIsOpen] = useState(false);
     const [messages, setMessages] = useState<Message[]>([
         {
             id: '1',
             type: 'bot',
-            content: "Hello! 🐾 I'm your PawBot assistant. I can help you plan a stay, check our pricing, or connect you with a live agent. What can I do for you?",
+            content: "Hello! 🐾 I'm your PawBot assistant. I'm powered by Google Gemini and trained on My Pawcation's specific rules and pricing. How can I help you today?",
             options: ['Plan a Booking', 'Price Inquiry', 'Rules & FAQ', 'Talk to Human Agent']
         }
     ]);
     const [input, setInput] = useState('');
     const [isLoading, setIsLoading] = useState(false);
-    const [chatState, setChatState] = useState<ChatState>('idle');
-    const [bookingRef, setBookingRef] = useState({
-        type: '',
-        size: '',
-        dates: ''
-    });
 
     const messagesEndRef = useRef<HTMLDivElement>(null);
 
@@ -48,121 +43,47 @@ export const ChatBot: React.FC = () => {
         const content = manualContent || input.trim();
         if (!content || isLoading) return;
 
-        setMessages(prev => [...prev, { id: Date.now().toString(), type: 'user', content }]);
+        const newUserMsg: Message = { id: Date.now().toString(), type: 'user', content };
+        setMessages(prev => [...prev, newUserMsg]);
         if (!manualContent) setInput('');
         setIsLoading(true);
 
-        setTimeout(async () => {
-            let botResponse = "";
-            let options: string[] = ['Plan a Booking', 'Rules & FAQ', 'Talk to Human Agent'];
-            let nextState: ChatState = chatState;
+        // Prepare History for Gemini
+        const history = messages.map(msg => ({
+            role: (msg.type === 'bot' ? 'model' : 'user') as 'model' | 'user',
+            parts: [{ text: msg.content }]
+        }));
 
-            const lower = content.toLowerCase().trim();
-            const words = lower.split(/[\s?!.,]+/);
-
-            // --- ADVANCED SEMANTIC INTENT ENGINE v2 ---
-            const intentMap = [
-                { id: 'pricing', weight: 0, phrases: ['price', 'much', 'mcuh', 'rm', 'cost', 'total', 'rate', 'fee', 'charge', 'money', 'how to pay'] },
-                { id: 'booking', weight: 0, phrases: ['book', 'plan', 'stay', 'reservation', 'slot', 'available', 'check in', 'date', 'holiday', 'boarding', 'daycare'] },
-                { id: 'rules', weight: 0, phrases: ['vaccine', 'injection', 'shot', 'medical', 'safety', 'rule', 'sop', 'male', 'boy', 'pee', 'diaper', 'mark', 'belly band'] },
-                { id: 'location', weight: 0, phrases: ['where', 'locate', 'address', 'place', 'street', 'direction', 'far', 'near', 'sri petaling'] },
-                { id: 'human', weight: 0, phrases: ['agent', 'human', 'person', 'founder', 'talk', 'whatsapp', 'call', 'contact', 'speak', 'help'] },
-                { id: 'insult', weight: 0, phrases: ['stupid', 'dumb', 'bad', 'useless', 'idiot', 'bot', 'not working'] }
-            ];
-
-            // Semantic Scoring
-            intentMap.forEach(intent => {
-                intent.phrases.forEach(p => {
-                    if (lower.includes(p)) intent.weight += 10; // High score for phrase contains
-                    if (words.includes(p)) intent.weight += 5;  // Bonus for exact word match
-                });
-            });
-
-            // Sort by weight
-            const topIntent = intentMap.sort((a, b) => b.weight - a.weight)[0];
-
-            // Specific Context Flags
-            const isBoarding = lower.includes('boarding') || lower.includes('overnight') || lower.includes('sleep');
-            const isDaycare = lower.includes('daycare') || lower.includes('day') || lower.includes('dropping');
-            const isSmall = lower.includes('small') || lower.includes('tiny') || lower.includes('7kg');
-            const isMedium = lower.includes('medium') || lower.includes('moderate') || lower.includes('15kg');
-            const isLarge = lower.includes('large') || lower.includes('big') || lower.includes('giant');
-
-            // --- BRAIN: INTENT RESOLUTION ---
-
-            // Priority 0: Easter Egg for Insults (Shows "Understanding")
-            if (topIntent.id === 'insult' && topIntent.weight > 0) {
-                botResponse = "I'm still learning the complexity of human language! 🐾 My apologies if I'm being a bit slow. I'm trained on My Pawcation's specific rules (Pricing, Vaccines, SOPs). How can I better assist you with those?";
-                options = ['Ask about Pricing', 'Rules & FAQ', 'Talk to Human Agent'];
-            }
-            // Priority 1: State Machine (Booking Plan)
-            else if (chatState === 'asking_booking_type') {
-                const type = isBoarding ? 'Boarding' : isDaycare ? 'Daycare' : 'Boarding';
-                setBookingRef(prev => ({ ...prev, type }));
-                botResponse = `I've noted that you're interested in ${type}. To give you specific advice (including size-based pricing), how big is your furkid?`;
-                options = ['Small (≤7kg)', 'Medium (8–15kg)', 'Large (>15kg)'];
-                nextState = 'asking_dog_size';
-            }
-            else if (chatState === 'asking_dog_size') {
-                const size = isSmall ? 'Small' : isMedium ? 'Medium' : isLarge ? 'Large' : 'Small';
-                setBookingRef(prev => ({ ...prev, size }));
-                botResponse = `Got it, a ${size} furkid! last question: Are you looking at any specific holiday dates (CNY, Raya, etc.)? Our slots for peak season fill up much faster.`;
-                options = ['Normal Weekday', 'Holiday / Peak Season'];
-                nextState = 'asking_dates';
-            }
-            else if (chatState === 'asking_dates') {
-                botResponse = `Analysis for your ${bookingRef.size} furkid's ${bookingRef.type}: \n\n1. Based on current data, slots for your requested periods may be tight. \n2. Mandatory Check: Please ensure DHPPi + Lepto vaccines are up to date! \n3. Pricing: We suggest a final quote via WhatsApp. \n\nShall I connect you with our human agent now?`;
-                options = ['Talk to Human Agent', 'Ask about Pricing'];
-                nextState = 'idle';
-            }
-            // Priority 2: Semantic Intent Overrides
-            else if (topIntent.weight > 0) {
-                switch (topIntent.id) {
-                    case 'human':
-                        botResponse = "I'm connecting you to our Human Support Agent on WhatsApp right now for expert help! 🐾";
-                        options = ['Open WhatsApp'];
-                        break;
-                    case 'pricing':
-                        let p = "Our Boarding starts at RM40/night and Daycare at RM20 for small dogs.";
-                        if (isLarge) p = `Since you mentioned a Large dog, Boarding is RM${PRICING_DATA.dogs.boarding[2].normal}.`;
-                        else if (isMedium) p = `For medium dogs, Boarding is RM${PRICING_DATA.dogs.boarding[1].normal}.`;
-                        botResponse = `${p} Note: Peak seasons have a RM10 surcharge. Would you like a person to calculate your exact total?`;
-                        options = ['Talk to Human Agent', 'Plan a Booking'];
-                        break;
-                    case 'rules':
-                        if (lower.includes('male') || lower.includes('boy')) {
-                            botResponse = "Boys are welcome! 🐾 Just a reminder: Male dogs MUST wear 'Belly Bands' (diapers) indoors to prevent marking. Please bring your own!";
-                        } else {
-                            botResponse = "Safety is our priority. 💉 All guests must be fully vaccinated (DHPPi + Lepto). We are cage-free but have strict hygiene rules.";
-                        }
-                        options = ['Rules & FAQ', 'Talk to Human Agent'];
-                        break;
-                    case 'location':
-                        botResponse = `We are located in ${CONTACT_INFO.address}. It's a cozy home-style environment!`;
-                        options = ['Plan a Booking', 'Talk to Human Agent'];
-                        break;
-                    case 'booking':
-                        botResponse = "I'll help you prepare for a stay! 🐾 Is this for Boarding (overnight) or Daycare (day only)?";
-                        options = ['Boarding', 'Daycare'];
-                        nextState = 'asking_booking_type';
-                        break;
-                }
-            }
-            // Priority 3: Natural Fallback (Smarter Clarification)
-            else {
-                botResponse = "I want to make sure I understand you correctly. 🐾 Are you asking about our 'Pricing', 'Hygiene Rules', or looking to 'Book a Stay'?";
-                options = ['Ask about Pricing', 'Rules & FAQ', 'Plan a Booking', 'Talk to Human Agent'];
-            }
-
-            setChatState(nextState);
-            const botMsg: Message = { id: (Date.now() + 1).toString(), type: 'bot', content: botResponse, options };
+        try {
+            const botResponse = await getChatResponse(content, history);
+            const botMsg: Message = {
+                id: (Date.now() + 1).toString(),
+                type: 'bot',
+                content: botResponse,
+                options: ['Plan a Booking', 'Rules & FAQ', 'Talk to Human Agent']
+            };
             setMessages(prev => [...prev, botMsg]);
-            setIsLoading(false);
 
+            // Optional: Log to Supabase
             try {
-                await supabase.from('chat_logs').insert([{ user_msg: content, bot_response: botResponse, timestamp: new Date().toISOString() }]);
+                await supabase.from('chat_logs').insert([{
+                    user_msg: content,
+                    bot_response: botResponse,
+                    timestamp: new Date().toISOString()
+                }]);
             } catch (e) { }
-        }, 1500);
+        } catch (error) {
+            console.error("Chat Error:", error);
+            const errorMsg: Message = {
+                id: Date.now().toString(),
+                type: 'bot',
+                content: "I'm having a connection issue. 🐾 Please try again or talk to our agent via WhatsApp!",
+                options: ['Talk to Human Agent']
+            };
+            setMessages(prev => [...prev, errorMsg]);
+        } finally {
+            setIsLoading(false);
+        }
     };
 
     const handleOptionClick = (option: string) => {
@@ -172,14 +93,13 @@ export const ChatBot: React.FC = () => {
         }
         if (option === 'Reset Bot') {
             setMessages([{ id: '1', type: 'bot', content: "Analyzer Reset. How can I help you today?", options: ['Plan a Booking', 'Rules & FAQ', 'Talk to Human Agent'] }]);
-            setChatState('idle');
             return;
         }
         handleSend(undefined, option);
     };
 
     return (
-        <div className="fixed bottom-6 right-6 z-[100] font-sans">
+        <div className="fixed bottom-6 right-6 z-[100] font-sans text-stone-800">
             {/* Professional Chat Bubble */}
             {!isOpen && (
                 <button
@@ -199,7 +119,7 @@ export const ChatBot: React.FC = () => {
             {/* Premium Chat Window */}
             {isOpen && (
                 <div className="bg-white/95 backdrop-blur-xl w-[360px] sm:w-[420px] h-[600px] rounded-[2.5rem] shadow-[0_20px_60px_rgba(0,0,0,0.15)] flex flex-col overflow-hidden border border-white animate-in zoom-in-95 slide-in-from-bottom-10 duration-500">
-                    {/* Refined Header */}
+                    {/* Header */}
                     <div className="bg-gradient-to-br from-brand-brown to-brand-dark p-6 pb-8 flex justify-between items-start text-white relative overflow-hidden">
                         <div className="absolute top-0 right-0 w-32 h-32 bg-brand-green/10 rounded-full blur-3xl -mr-10 -mt-10"></div>
 
@@ -213,10 +133,10 @@ export const ChatBot: React.FC = () => {
                                 </span>
                             </div>
                             <div>
-                                <h3 className="font-display font-black text-lg tracking-tight">PawBot <span className="text-brand-green">Plus++</span></h3>
+                                <h3 className="font-display font-black text-lg tracking-tight">PawBot <span className="text-brand-green">AI</span></h3>
                                 <div className="flex items-center gap-2 text-[10px] font-bold text-brand-sand uppercase tracking-wider">
                                     <Sparkles size={10} className="text-brand-green" />
-                                    Active Support Agent
+                                    Powered by Gemini 1.5
                                 </div>
                             </div>
                         </div>
@@ -237,10 +157,10 @@ export const ChatBot: React.FC = () => {
                                         {msg.type === 'user' ? <User size={14} /> : <Headphones size={14} />}
                                     </div>
                                     <div className="space-y-3">
-                                        <div className={`p-4 rounded-[1.5rem] text-[13px] leading-relaxed shadow-sm ${msg.type === 'user' ? 'bg-white text-brand-dark rounded-tr-none border border-brand-sand/30 shadow-brand-brown/5' : 'bg-white text-brand-dark rounded-tl-none border border-brand-green/20 shadow-brand-green/5'}`}>
-                                            {msg.content.split('\n').map((line, i) => (
-                                                <p key={i} className={i > 0 ? 'mt-2 italic opacity-80 border-t border-brand-sand/20 pt-2' : ''}>{line}</p>
-                                            ))}
+                                        <div className={`p-4 rounded-[1.5rem] text-[13px] leading-relaxed shadow-sm prose prose-sm prose-stone ${msg.type === 'user' ? 'bg-white text-brand-dark rounded-tr-none border border-brand-sand/30 shadow-brand-brown/5' : 'bg-white text-brand-dark rounded-tl-none border border-brand-green/20 shadow-brand-green/5'}`}>
+                                            <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                                                {msg.content}
+                                            </ReactMarkdown>
                                         </div>
                                         {msg.type === 'bot' && msg.options && (
                                             <div className="flex flex-wrap gap-2 pt-1">
@@ -267,7 +187,7 @@ export const ChatBot: React.FC = () => {
                                         <span className="w-1.5 h-1.5 bg-brand-green rounded-full animate-bounce [animation-delay:-0.15s]"></span>
                                         <span className="w-1.5 h-1.5 bg-brand-green rounded-full animate-bounce"></span>
                                     </div>
-                                    <span className="text-[10px] text-stone-400 font-black uppercase tracking-widest">Agent Typing</span>
+                                    <span className="text-[10px] text-stone-400 font-black uppercase tracking-widest text-brand-green">AI Thinking</span>
                                 </div>
                             </div>
                         )}
@@ -295,7 +215,7 @@ export const ChatBot: React.FC = () => {
                         </div>
                         <p className="text-[9px] text-center text-stone-400 mt-4 font-medium uppercase tracking-widest flex items-center justify-center gap-2">
                             <Sparkles size={10} className="text-brand-green" />
-                            Powered by PawBot Intelligence
+                            Truly Intelligent AI Analysis
                         </p>
                     </div>
                 </div>
