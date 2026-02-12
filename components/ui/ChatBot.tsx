@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { useState, useEffect, useRef } from 'react';
 import { X, Send, User, Bot, Loader2, MessageSquare } from 'lucide-react';
-import { CONTACT_INFO } from '../../constants';
+import { CONTACT_INFO, PRICING_DATA, FAQS } from '../../constants';
 import { supabase } from '../../lib/supabase';
 
 type Message = {
@@ -11,18 +11,27 @@ type Message = {
     options?: string[];
 };
 
+type ChatState = 'idle' | 'asking_booking_type' | 'asking_dog_size' | 'asking_dates' | 'giving_advice';
+
 export const ChatBot: React.FC = () => {
     const [isOpen, setIsOpen] = useState(false);
     const [messages, setMessages] = useState<Message[]>([
         {
             id: '1',
             type: 'bot',
-            content: "Hi there! 🐾 I'm PawBot, your helpful assistant for My-Pawcation. How can I help you today?",
-            options: ['Booking SOP', 'Pricing Inquiry', 'Rules & FAQs', 'Talk to Founder']
+            content: "Woof! 🐾 I'm PawBot. I can help you with pricing, booking advice, or answer questions about our home-stay rules. What's on your mind?",
+            options: ['Help me plan a booking', 'Price Check', 'Packing List', 'Talk to Founder']
         }
     ]);
     const [input, setInput] = useState('');
     const [isLoading, setIsLoading] = useState(false);
+    const [chatState, setChatState] = useState<ChatState>('idle');
+    const [bookingRef, setBookingRef] = useState({
+        type: '',
+        size: '',
+        dates: ''
+    });
+
     const messagesEndRef = useRef<HTMLDivElement>(null);
 
     const scrollToBottom = () => {
@@ -41,30 +50,68 @@ export const ChatBot: React.FC = () => {
         setInput('');
         setIsLoading(true);
 
-        // Simple Bot Logic based on keywords and options
+        // Smart Logic Layer
         setTimeout(async () => {
             let botResponse = "";
             let options: string[] = [];
+            let nextState: ChatState = chatState;
 
             const lower = content.toLowerCase();
 
-            if (lower.includes('booking') || lower.includes('sop')) {
-                botResponse = "To make a booking: \n1. Contact us to confirm dates. \n2. Pay 50% deposit or 100% full payment to secure your slot. \n3. Share your pet's vaccination proof. \n\nCheck-in is after 2pm, Check-out is before 12pm.";
-                options = ['Check Prices', 'Talk to Founder'];
-            } else if (lower.includes('pricing') || lower.includes('price') || lower.includes('how much')) {
-                botResponse = "Our prices start from RM20 for daycare and RM40 for boarding (Dogs). Cats/Rabbits start at RM15 for daycare. Would you like to see the full pricing table?";
-                options = ['Go to Pricing Section', 'Booking SOP'];
-            } else if (lower.includes('rule') || lower.includes('faq') || lower.includes('vaccination') || lower.includes('male dog')) {
-                botResponse = "Standard Rules: \n- Vaccinations required. \n- Male dogs must wear diapers. \n- Bring own food/meds. \n\nIs there a specific FAQ you want to know about?";
-                options = ['See all FAQs', 'Talk to Founder'];
-            } else if (lower.includes('founder') || lower.includes('human') || lower.includes('person') || lower.includes('talk to')) {
-                botResponse = "I'll connect you to our founder on WhatsApp right away! They can help with specific requests.";
-                options = ['Open WhatsApp'];
-            } else {
-                botResponse = "I'm not sure I understand that. Try selecting an option below or asking about 'Booking', 'Pricing', or 'Rules'.";
-                options = ['Booking SOP', 'Pricing Inquiry', 'Talk to Founder'];
+            // 1. STATE-BASED BOOKING ADVISOR
+            if (chatState === 'asking_booking_type') {
+                setBookingRef(prev => ({ ...prev, type: content }));
+                botResponse = "Got it. And how big is your furkid? (Small, Medium, Large, or Giant?)";
+                options = ['Small (under 10kg)', 'Medium (10-20kg)', 'Large (20-30kg)', 'Giant (over 30kg)'];
+                nextState = 'asking_dog_size';
+            }
+            else if (chatState === 'asking_dog_size') {
+                setBookingRef(prev => ({ ...prev, size: content }));
+                botResponse = "Perfect. Last question: Are you looking at any specific dates or a holiday period? (e.g. CNY, Raya, or just a weekend?)";
+                options = ['Check Peak Dates', 'Tell me more'];
+                nextState = 'asking_dates';
+            }
+            else if (chatState === 'asking_dates') {
+                botResponse = "Based on that, here is my PawBot Advice:\n\n1. Slots fill up 2-3 weeks early for Peak Seasons (CNY/Raya).\n2. Since you have a " + (bookingRef.size || "dog") + ", please ensure they are tick-free before arrival!\n3. We recommend bringing their own food to avoid tummy upsets.\n\nWould you like to see the exact price for a " + (bookingRef.size || "dog") + "?";
+                options = ['Show me Pricing', 'Talk to Founder'];
+                nextState = 'idle';
+            }
+            else if (lower.includes('plan') || lower.includes('booking advice')) {
+                botResponse = "I'd love to help you plan! First, is this for Boarding (overnight) or Daycare (day only)?";
+                options = ['Boarding', 'Daycare'];
+                nextState = 'asking_booking_type';
             }
 
+
+            // 2. KNOWLEDGE BASE SEARCH (FAQS / RULES)
+            else if (lower.includes('price') || lower.includes('how much') || lower.includes('cost')) {
+                botResponse = "Our Boarding starts at RM40/night and Daycare at RM20 for small dogs. Peak season (holidays) has a small surcharge. Check our detailed pricing for cats and big dogs as well!";
+                options = ['Detailed Price List', 'Help me plan'];
+            }
+            else if (lower.includes('vaccine') || lower.includes('vaccinated') || lower.includes('injection')) {
+                botResponse = "Safety first! 💉 All guests MUST be fully vaccinated (DHPPi + Lepto). We also require them to be on updated tick/flea prevention. Can you share your pet's vaccine card via WhatsApp later?";
+                options = ['Talk to Founder', 'Booking SOP'];
+            }
+            else if (lower.includes('male') || lower.includes('neutered') || lower.includes('diaper')) {
+                botResponse = "For the comfort of all guests, male dogs are required to wear 'Belly Bands' (diapers) while indoors to prevent marking. Please bring enough for their stay! 🐾";
+                options = ['What else to bring?', 'Talk to Founder'];
+            }
+            else if (lower.includes('pack') || lower.includes('bring') || lower.includes('prepare')) {
+                botResponse = "Packing List 🎒:\n- Own Food (labeled)\n- Leash & Harness\n- Vaccine Card\n- Diapers (for males)\n- Favorite toy or bedding (optional)";
+                options = ['Booking SOP', 'Talk to Founder'];
+            }
+            else if (lower.includes('founder') || lower.includes('human') || lower.includes('whatsapp')) {
+                botResponse = "Sure thing! My founder is ready to help you personally on WhatsApp.";
+                options = ['Open WhatsApp'];
+            }
+            else {
+                // Default fallback
+                botResponse = "I'm still learning! 🐾 I can help with 'Pricing', 'Packing List', or give you 'Booking Advice'. What would you like to know?";
+                options = ['Help me plan', 'Price Check', 'Packing List', 'Talk to Founder'];
+                nextState = 'idle';
+            }
+
+            setChatState(nextState);
             const botMsg: Message = { id: (Date.now() + 1).toString(), type: 'bot', content: botResponse, options };
             setMessages(prev => [...prev, botMsg]);
             setIsLoading(false);
@@ -83,11 +130,11 @@ export const ChatBot: React.FC = () => {
     const handleOptionClick = (option: string) => {
         if (option === 'Open WhatsApp') {
             window.open(`https://wa.me/${CONTACT_INFO.whatsapp.replace(/\D/g, '')}`, '_blank');
-        } else if (option === 'Go to Pricing Section') {
+        } else if (option === 'Detailed Price List' || option === 'Show me Pricing') {
             window.location.hash = '#pricing';
             setIsOpen(false);
-        } else if (option === 'See all FAQs') {
-            window.location.hash = '#faq';
+        } else if (option === 'Check Peak Dates') {
+            window.location.hash = '#faq'; // Assuming holiday dates are in FAQ
             setIsOpen(false);
         } else {
             handleSend(option);
@@ -96,7 +143,6 @@ export const ChatBot: React.FC = () => {
 
     return (
         <div className="fixed bottom-6 right-6 z-[100] font-sans">
-            {/* Chat Bubble */}
             {!isOpen && (
                 <button
                     onClick={() => setIsOpen(true)}
@@ -109,10 +155,8 @@ export const ChatBot: React.FC = () => {
                 </button>
             )}
 
-            {/* Chat Window */}
             {isOpen && (
                 <div className="bg-white w-[350px] sm:w-[400px] h-[550px] rounded-3xl shadow-2xl flex flex-col overflow-hidden border border-stone-100 animate-in slide-in-from-bottom-5 duration-300">
-                    {/* Header */}
                     <div className="bg-brand-green p-5 flex justify-between items-center text-white">
                         <div className="flex items-center gap-3">
                             <div className="bg-white/20 p-2 rounded-full">
@@ -131,7 +175,6 @@ export const ChatBot: React.FC = () => {
                         </button>
                     </div>
 
-                    {/* Messages Body */}
                     <div className="flex-1 overflow-y-auto p-5 space-y-4 bg-stone-50">
                         {messages.map((msg) => (
                             <div key={msg.id} className={`flex ${msg.type === 'user' ? 'justify-end' : 'justify-start'}`}>
@@ -166,14 +209,13 @@ export const ChatBot: React.FC = () => {
                             <div className="flex justify-start">
                                 <div className="bg-brand-green/10 p-3 rounded-2xl rounded-tl-none animate-pulse flex items-center gap-2">
                                     <Loader2 size={16} className="animate-spin text-brand-green" />
-                                    <span className="text-xs text-stone-500 font-medium">Typing...</span>
+                                    <span className="text-xs text-stone-500 font-medium">Analyzing...</span>
                                 </div>
                             </div>
                         )}
                         <div ref={messagesEndRef} />
                     </div>
 
-                    {/* Input Footer */}
                     <div className="p-4 bg-white border-t border-stone-100">
                         <div className="flex gap-2">
                             <input
@@ -181,7 +223,7 @@ export const ChatBot: React.FC = () => {
                                 value={input}
                                 onChange={(e) => setInput(e.target.value)}
                                 onKeyPress={(e) => e.key === 'Enter' && handleSend(input)}
-                                placeholder="Type your question..."
+                                placeholder="Ask about prices, rules, or bookings..."
                                 className="flex-1 bg-stone-100 border-none rounded-xl px-4 py-2 text-sm focus:ring-2 focus:ring-brand-green transition-all"
                             />
                             <button
