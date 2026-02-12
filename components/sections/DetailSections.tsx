@@ -5,7 +5,7 @@ import { TESTIMONIALS, FAQS, PRICING_DATA } from '../../constants';
 
 export const Testimonials: React.FC = () => {
     const [currentIndex, setCurrentIndex] = useState(0);
-    const reviewsPerView = { mobile: 1, tablet: 2, desktop: 3 };
+    const reviewsPerView = { mobile: 1, tablet: 3, desktop: 5 };
 
     const next = () => {
         setCurrentIndex((prev) => (prev + 1) % TESTIMONIALS.length);
@@ -20,12 +20,12 @@ export const Testimonials: React.FC = () => {
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <SectionTitle title="Happy Tails" subtitle="WhatsApp Reviews" />
 
-                <div className="relative group max-w-5xl mx-auto">
+                <div className="relative group max-w-7xl mx-auto">
                     {/* Carousel Container */}
-                    <div className="flex transition-transform duration-500 ease-out gap-4 md:gap-6"
+                    <div className="flex transition-transform duration-500 ease-out gap-4"
                         style={{ transform: `translateX(-${currentIndex * (100 / reviewsPerView.desktop)}%)` }}>
                         {TESTIMONIALS.map((review) => (
-                            <div key={review.id} className="min-w-[85%] md:min-w-[45%] lg:min-w-[31.333%] flex-shrink-0">
+                            <div key={review.id} className="min-w-[85%] md:min-w-[30%] lg:min-w-[18.5%] flex-shrink-0">
                                 <Card className="p-0 overflow-hidden shadow-md hover:shadow-xl transition-all border-none aspect-square">
                                     <img
                                         src={review.imageUrl}
@@ -241,24 +241,24 @@ export const FAQ: React.FC = () => {
     const [openIndex, setOpenIndex] = useState<number | null>(0);
 
     return (
-        <section id="faq" className="py-24 bg-brand-sand/20 scroll-mt-32">
-            <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
+        <section id="faq" className="py-16 bg-brand-sand/20 scroll-mt-32">
+            <div className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8">
                 <SectionTitle title="Common Questions" subtitle="FAQ" />
 
-                <div className="space-y-4">
+                <div className="space-y-3">
                     {FAQS.map((item, index) => (
-                        <div key={index} className="bg-white rounded-2xl overflow-hidden shadow-sm border border-brand-sand/20">
+                        <div key={index} className="bg-white rounded-xl overflow-hidden shadow-sm border border-brand-sand/20">
                             <button
-                                className="w-full px-6 py-4 text-left flex justify-between items-center focus:outline-none hover:bg-brand-cream/50 transition-colors"
+                                className="w-full px-5 py-3 text-left flex justify-between items-center focus:outline-none hover:bg-brand-cream/50 transition-colors"
                                 onClick={() => setOpenIndex(openIndex === index ? null : index)}
                             >
-                                <span className="font-bold text-brand-dark text-lg pr-4">{item.question}</span>
+                                <span className="font-bold text-brand-dark text-base pr-4">{item.question}</span>
                                 <div className={`shrink-0 p-1 rounded-full transition-colors ${openIndex === index ? 'bg-brand-green text-white' : 'bg-brand-cream text-brand-dark'}`}>
-                                    {openIndex === index ? <Minus size={18} /> : <Plus size={18} />}
+                                    {openIndex === index ? <Minus size={14} /> : <Plus size={14} />}
                                 </div>
                             </button>
                             <div
-                                className={`px-6 transition-all duration-300 ease-in-out ${openIndex === index ? 'max-h-48 pb-6 opacity-100' : 'max-h-0 opacity-0 overflow-hidden'}`}
+                                className={`px-5 transition-all duration-300 ease-in-out ${openIndex === index ? 'max-h-48 pb-5 opacity-100' : 'max-h-0 opacity-0 overflow-hidden'}`}
                             >
                                 <p className="text-stone-600 leading-relaxed text-sm">{item.answer}</p>
                             </div>
