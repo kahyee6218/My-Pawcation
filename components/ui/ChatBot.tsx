@@ -42,111 +42,117 @@ export const ChatBot: React.FC = () => {
         if (isOpen) scrollToBottom();
     }, [messages, isOpen]);
 
-    const handleSend = async (content: string) => {
-        if (!content.trim()) return;
+    const handleSend = async (e?: React.FormEvent, manualContent?: string) => {
+        if (e && e.preventDefault) e.preventDefault();
 
-        const userMsg: Message = { id: Date.now().toString(), type: 'user', content };
-        setMessages(prev => [...prev, userMsg]);
-        setInput('');
+        const content = manualContent || input.trim();
+        if (!content || isLoading) return;
+
+        setMessages(prev => [...prev, { id: Date.now().toString(), type: 'user', content }]);
+        if (!manualContent) setInput('');
         setIsLoading(true);
 
-        // Intelligent Analysis & Knowledge Extraction
         setTimeout(async () => {
             let botResponse = "";
-            let options: string[] = ['Plan a Booking', 'Rules & FAQ', 'Talk to Human Agent', 'Ask about Pricing'];
+            let options: string[] = ['Plan a Booking', 'Rules & FAQ', 'Talk to Human Agent'];
             let nextState: ChatState = chatState;
 
             const lower = content.toLowerCase().trim();
+            const words = lower.split(/[\s?!.,]+/);
 
-            // --- 0. DYNAMIC KNOWLEDGE BASE SEARCH ---
-            const findBestAnswer = () => {
-                const words = lower.split(/[\s?!.,]+/);
-
-                // Fuzzy check for keywords
-                const hasKeyword = (k: string) => words.some(w => w.includes(k) || k.includes(w) && k.length > 3);
-                const isPricingQuery = lower.includes('price') || lower.includes('much') || lower.includes('mcuh') ||
-                    lower.includes('cost') || lower.includes('rm') || lower.includes('total') ||
-                    lower.includes('rate') || lower.includes('fee');
-
-                // Check FAQs
-                const faqMatch = FAQS.find(f =>
-                    lower.includes(f.question.toLowerCase().split(' ').slice(0, 3).join(' ')) ||
-                    f.question.toLowerCase().split(' ').some(word => word.length > 4 && lower.includes(word))
-                );
-                if (faqMatch) return faqMatch.answer;
-
-                // Check Specific Pricing Logic
-                if (isPricingQuery) {
-                    let priceNote = "Our Boarding starts at RM40 and Daycare at RM20 for small dogs.";
-                    if (lower.includes('cat') || lower.includes('rabbit') || lower.includes('kitty')) {
-                        priceNote = `For cats/rabbits, Daycare is RM${PRICING_DATA.cats_rabbits.daycare[0].normal} and Boarding is RM${PRICING_DATA.cats_rabbits.boarding[0].normal}.`;
-                    } else if (lower.includes('large') || lower.includes('giant') || lower.includes('big') || lower.includes('kg > 15')) {
-                        priceNote = `For large dogs (>15kg), Boarding is RM${PRICING_DATA.dogs.boarding[2].normal} and Daycare is RM${PRICING_DATA.dogs.daycare[2].normal}.`;
-                    } else if (lower.includes('medium') || lower.includes('moderate')) {
-                        priceNote = `For medium dogs (8-15kg), Boarding is RM${PRICING_DATA.dogs.boarding[1].normal} and Daycare is RM${PRICING_DATA.dogs.daycare[1].normal}.`;
-                    }
-                    return `${priceNote} Peak seasons have a RM10 surcharge. Since I'm just a bot, would you like our human agent to calculate the exact total for your dates?`;
+            // --- ADVANCED INTENT ENGINE ---
+            const intents = {
+                pricing: {
+                    keywords: ['price', 'much', 'mcuh', 'rm', 'cost', 'total', 'rate', 'fee', 'charge', 'money', 'cheap', 'expensive'],
+                    score: 0
+                },
+                booking: {
+                    keywords: ['book', 'plan', 'stay', 'reservation', 'slot', 'available', 'check in', 'date', 'holiday', 'boarding', 'daycare'],
+                    score: 0
+                },
+                rules: {
+                    keywords: ['vaccine', 'injection', 'shot', 'medical', 'safety', 'rule', 'sop', 'male', 'boy', 'pee', 'diaper', 'mark', 'belly band', 'sick', 'health'],
+                    score: 0
+                },
+                location: {
+                    keywords: ['where', 'locate', 'address', 'place', 'street', 'direction', 'far', 'near', 'sri petaling', 'find'],
+                    score: 0
+                },
+                human: {
+                    keywords: ['agent', 'human', 'person', 'founder', 'talk', 'whatsapp', 'call', 'contact', 'speak', 'help', 'emergency'],
+                    score: 0
                 }
-
-                // Check Routine / Hours
-                if (lower.includes('time') || lower.includes('routine') || lower.includes('schedule') || lower.includes('open') || lower.includes('hour')) {
-                    return "Our daily routine starts at 7 AM with feeding. Check-in is at 2 PM and Check-out at 12 PM. We are open every day, but appointments are required!";
-                }
-
-                // Check Rules (Vaccines/Diapers)
-                if (lower.includes('vaccine') || lower.includes('injection') || lower.includes('sick') || lower.includes('safety') || lower.includes('shot')) {
-                    return "Safety is our priority! 💉 All pets must be fully vaccinated (DHPPi + Lepto). We also have strict hygiene SOPs and separate zones for cats and dogs.";
-                }
-                if (lower.includes('male') || lower.includes('boy') || lower.includes('pee') || lower.includes('diaper') || lower.includes('belly band')) {
-                    return "Male dogs are welcome but MUST wear 'Belly Bands' (diapers) indoors to prevent marking. Please bring your own! We have them available if you forget.";
-                }
-
-                // Check Facility / Location
-                if (lower.includes('where') || lower.includes('location') || lower.includes('address') || lower.includes('find us')) {
-                    return `We are located at ${CONTACT_INFO.address}. It's a cage-free, home-style environment in Sri Petaling. Looking forward to seeing you!`;
-                }
-
-                return null;
             };
 
-            const knowledgeAnswer = findBestAnswer();
+            // Calculate scores
+            Object.values(intents).forEach(intent => {
+                intent.keywords.forEach(k => {
+                    if (lower.includes(k)) intent.score += 2;
+                    words.forEach(w => { if (w === k) intent.score += 3; });
+                });
+            });
 
-            // --- 1. STATE-BASED LOGIC (With Knowledge Override) ---
-            if (chatState === 'asking_booking_type' && !knowledgeAnswer) {
-                setBookingRef(prev => ({ ...prev, type: content }));
-                botResponse = "Got it. And how big is your furkid? (Small, Medium, or Large?)";
+            // State matching
+            const isBoarding = lower.includes('boarding') || lower.includes('overnight') || lower.includes('sleep');
+            const isDaycare = lower.includes('daycare') || lower.includes('day') || lower.includes('dropping');
+            const isSmall = lower.includes('small') || lower.includes('tiny') || lower.includes('7kg');
+            const isMedium = lower.includes('medium') || lower.includes('moderate') || lower.includes('15kg');
+            const isLarge = lower.includes('large') || lower.includes('big') || lower.includes('giant');
+
+            // --- RESOLUTION LOGIC ---
+
+            // 1. Priority: State Machine for Booking
+            if (chatState === 'asking_booking_type') {
+                const type = isBoarding ? 'Boarding' : isDaycare ? 'Daycare' : 'Boarding';
+                setBookingRef(prev => ({ ...prev, type }));
+                botResponse = `I understand you're looking for ${type}. To give you the correct advice, how big is your furkid? (Small, Medium, or Large?)`;
                 options = ['Small (≤7kg)', 'Medium (8–15kg)', 'Large (>15kg)'];
                 nextState = 'asking_dog_size';
             }
-            else if (chatState === 'asking_dog_size' && !knowledgeAnswer) {
-                setBookingRef(prev => ({ ...prev, size: content }));
-                botResponse = "Perfect. Last question: Are you looking at any specific dates or a holiday period? (CNY, Raya, School Holidays?)";
-                options = ['Normal Weekday', 'Peak Season / Holiday'];
+            else if (chatState === 'asking_dog_size') {
+                const size = isSmall ? 'Small' : isMedium ? 'Medium' : isLarge ? 'Large' : 'Small';
+                setBookingRef(prev => ({ ...prev, size }));
+                botResponse = `Got it, a ${size} furkid! last thing: Are you looking at any specific dates or a holiday period? (Our peak seasons like CNY/Raya have different slots).`;
+                options = ['Normal Weekday', 'Holiday / Peak Season'];
                 nextState = 'asking_dates';
             }
-            else if (chatState === 'asking_dates' && !knowledgeAnswer) {
-                botResponse = "Based on our data for " + (bookingRef.type) + " a " + (bookingRef.size || "dog") + ":\n\n1. Slots fill up fast for holidays.\n2. Vaccination cards are mandatory.\n3. Bring their own food to avoid tummy upsets.\n\nShall I connect you with a Human Agent for the final booking confirmation?";
-                options = ['Talk to Human Agent', 'Ask about Pricing'];
+            else if (chatState === 'asking_dates') {
+                botResponse = `Analysis Complete: For a ${bookingRef.size} dog doing ${bookingRef.type}, I recommend checking our current slots on WhatsApp. \n\nTips:\n• Vaccination card is a MUST.\n• Slots for holidays fill 3 weeks early.\n• Bring their own food!`;
+                options = ['Open WhatsApp', 'Reset Bot'];
                 nextState = 'idle';
             }
-            // --- 2. GLOBAL OVERRIDE (TRUE INTELLIGENCE) ---
-            else if (knowledgeAnswer) {
-                botResponse = knowledgeAnswer;
-                nextState = 'idle'; // Reset state if user asks a side question
+            // 2. Intent Overrides
+            else if (intents.human.score > 2) {
+                botResponse = "I've detected that you'd like to talk to a human! I'm connecting you to our support agent on WhatsApp for immediate assistance. 🐾";
+                options = ['Open WhatsApp'];
             }
-            else if (lower.includes('plan') || lower.includes('book')) {
-                botResponse = "I'll help you plan! 🐾 Is this for Boarding (overnight) or Daycare (day only)?";
+            else if (intents.pricing.score > 2) {
+                let p = "Our entry-level small dog boarding starts at RM40, and daycare at RM20.";
+                if (isLarge) p = `For large dogs (>15kg), it is RM${PRICING_DATA.dogs.boarding[2].normal} for boarding.`;
+                else if (isMedium) p = `For medium dogs (8-15kg), it is RM${PRICING_DATA.dogs.boarding[1].normal} for boarding.`;
+                else if (lower.includes('cat') || lower.includes('rabbit')) p = `Cats & Rabbits go for RM${PRICING_DATA.cats_rabbits.boarding[0].normal}.`;
+
+                botResponse = `${p} There is a RM10 surcharge during Peak Seasons. Would you like a human agent to calculate the final total for you?`;
+                options = ['Talk to Human Agent', 'Plan a Booking'];
+            }
+            else if (intents.rules.score > 2) {
+                if (lower.includes('male') || lower.includes('boy') || lower.includes('mark') || lower.includes('pee')) {
+                    botResponse = "Male dogs are super welcome! 🐾 However, they MUST wear 'Belly Bands' (diapers) at all times indoors to prevent marking. Please bring your own, or we can provide them!";
+                } else {
+                    botResponse = "Safety is non-negotiable! 💉 All pets must be fully vaccinated (DHPPi + Lepto). We are cage-free and maintain high hygiene standards.";
+                }
+            }
+            else if (intents.location.score > 2) {
+                botResponse = `We are based in ${CONTACT_INFO.address}. It's a cozy home-stay environment in Sri Petaling!`;
+            }
+            else if (intents.booking.score > 2) {
+                botResponse = "I'll guide you through our booking analyzer! Is this for Boarding (overnight) or Daycare?";
                 options = ['Boarding', 'Daycare'];
                 nextState = 'asking_booking_type';
             }
-            else if (lower.includes('agent') || lower.includes('human') || lower.includes('founder') || lower.includes('talk to')) {
-                botResponse = "Connecting you to our Human Support Agent on WhatsApp for personal assistance... 🐾";
-                options = ['Open WhatsApp'];
-            }
             else {
-                botResponse = "I've analyzed your message based on our current SOPs. I can provide details on 'Pricing', 'Hygiene Rules', or 'Daily Routines'. What else would you like to know?";
-                options = ['Plan a Booking', 'Detailed Price List', 'Talk to Human Agent'];
-                nextState = 'idle';
+                botResponse = "I'm still learning natural language, but I've analyzed your message. I can help with 'Pricing', 'Rules', or starting a 'Booking Plan'. Which would you like?";
+                options = ['Ask about Pricing', 'Plan a Booking', 'Talk to Human Agent'];
             }
 
             setChatState(nextState);
@@ -155,9 +161,7 @@ export const ChatBot: React.FC = () => {
             setIsLoading(false);
 
             try {
-                await supabase.from('chat_logs').insert([
-                    { user_msg: content, bot_response: botResponse, timestamp: new Date().toISOString() }
-                ]);
+                await supabase.from('chat_logs').insert([{ user_msg: content, bot_response: botResponse, timestamp: new Date().toISOString() }]);
             } catch (e) { }
         }, 1500);
     };
@@ -165,12 +169,14 @@ export const ChatBot: React.FC = () => {
     const handleOptionClick = (option: string) => {
         if (option === 'Open WhatsApp' || option === 'Talk to Human Agent') {
             window.open(`https://wa.me/${CONTACT_INFO.whatsapp.replace(/\D/g, '')}`, '_blank');
-        } else if (option === 'Detailed Price List') {
-            window.location.hash = '#pricing';
-            setIsOpen(false);
-        } else {
-            handleSend(option);
+            return;
         }
+        if (option === 'Reset Bot') {
+            setMessages([{ id: '1', type: 'bot', content: "Analyzer Reset. How can I help you today?", options: ['Plan a Booking', 'Rules & FAQ', 'Talk to Human Agent'] }]);
+            setChatState('idle');
+            return;
+        }
+        handleSend(undefined, option);
     };
 
     return (
@@ -276,12 +282,12 @@ export const ChatBot: React.FC = () => {
                                 type="text"
                                 value={input}
                                 onChange={(e) => setInput(e.target.value)}
-                                onKeyPress={(e) => e.key === 'Enter' && handleSend(input)}
+                                onKeyPress={(e) => e.key === 'Enter' && handleSend()}
                                 placeholder="Message our agents..."
                                 className="flex-1 bg-transparent border-none rounded-xl px-4 py-3 text-[13px] focus:ring-0 outline-none placeholder:text-stone-400"
                             />
                             <button
-                                onClick={() => handleSend(input)}
+                                onClick={() => handleSend()}
                                 disabled={!input.trim() || isLoading}
                                 className="bg-brand-brown text-white p-3 rounded-xl hover:bg-brand-dark transition-all disabled:opacity-50 active:scale-90 shadow-lg shadow-brand-brown/20"
                             >
