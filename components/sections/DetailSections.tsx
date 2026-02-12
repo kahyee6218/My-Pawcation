@@ -5,7 +5,7 @@ import { TESTIMONIALS, FAQS, PRICING_DATA } from '../../constants';
 
 export const Testimonials: React.FC = () => {
     const [currentIndex, setCurrentIndex] = useState(0);
-    const reviewsPerView = { mobile: 2, tablet: 4, desktop: 6 };
+    const reviewsPerView = { mobile: 2, tablet: 4, desktop: 8 };
 
     const next = () => {
         setCurrentIndex((prev) => (prev + 1) % TESTIMONIALS.length);
@@ -16,7 +16,7 @@ export const Testimonials: React.FC = () => {
     };
 
     return (
-        <section id="reviews" className="py-12 bg-white scroll-mt-24 overflow-hidden">
+        <section id="reviews" className="py-8 bg-white scroll-mt-24 overflow-hidden">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <SectionTitle title="Happy Tails" subtitle="WhatsApp Reviews" />
 
@@ -25,7 +25,7 @@ export const Testimonials: React.FC = () => {
                     <div className="flex transition-transform duration-300 ease-out gap-4"
                         style={{ transform: `translateX(-${currentIndex * (100 / reviewsPerView.desktop)}%)` }}>
                         {TESTIMONIALS.map((review) => (
-                            <div key={review.id} className="min-w-[45%] md:min-w-[22%] lg:min-w-[15%] flex-shrink-0">
+                            <div key={review.id} className="min-w-[45%] md:min-w-[22%] lg:min-w-[11.5%] flex-shrink-0">
                                 <Card className="p-0 overflow-hidden shadow-md hover:shadow-xl transition-all border-none aspect-square bg-gray-100">
                                     <img
                                         src={review.imageUrl}
