@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import * as React from 'react';
+import { useState } from 'react';
 import { Star, Plus, Minus, Check, Dog, Cat, Scissors, Home, Info, Search, ChevronLeft, ChevronRight } from 'lucide-react';
 import { SectionTitle, Card } from '../ui/Elements';
 import { TESTIMONIALS, FAQS, PRICING_DATA } from '../../constants';

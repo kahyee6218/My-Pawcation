@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from 'react';
+import * as React from 'react';
+import { useState, useEffect } from 'react';
 import { Menu, X, Instagram, Facebook, Phone, Mail, MapPin } from 'lucide-react';
 import { NAV_ITEMS, CONTACT_INFO } from '../../constants';
 import { Button } from './Elements';

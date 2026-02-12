@@ -1,4 +1,4 @@
-import React from 'react';
+import * as React from 'react';
 import { ArrowRight, CheckCircle, Clock, Check, ShieldCheck } from 'lucide-react';
 import { Button, SectionTitle, Card } from '../ui/Elements';
 import { WHY_CHOOSE_US, DAILY_ROUTINE, HYGIENE_SOP } from '../../constants';
