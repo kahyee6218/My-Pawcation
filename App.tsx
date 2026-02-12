@@ -2,6 +2,7 @@ import * as React from 'react';
 import { Navbar, Footer } from './components/ui/Layout';
 import { MainHero, AboutPreview, WhyChooseUs, DailyRoutine, HowItWorks } from './components/sections/HomeSections';
 import { Testimonials, Pricing, FAQ } from './components/sections/DetailSections';
+import { InstagramFeed } from './components/sections/InstagramFeed';
 import { BookingForm } from './components/sections/BookingForm';
 import { CONTACT_INFO } from './constants';
 
@@ -19,6 +20,7 @@ function App() {
         <DailyRoutine />
         <HowItWorks />
         <Testimonials />
+        <InstagramFeed />
         <Pricing />
         <FAQ />
         <BookingForm />

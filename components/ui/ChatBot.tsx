@@ -60,6 +60,14 @@ export const ChatBot: React.FC = () => {
 
             // --- 0. DYNAMIC KNOWLEDGE BASE SEARCH ---
             const findBestAnswer = () => {
+                const words = lower.split(/[\s?!.,]+/);
+
+                // Fuzzy check for keywords
+                const hasKeyword = (k: string) => words.some(w => w.includes(k) || k.includes(w) && k.length > 3);
+                const isPricingQuery = lower.includes('price') || lower.includes('much') || lower.includes('mcuh') ||
+                    lower.includes('cost') || lower.includes('rm') || lower.includes('total') ||
+                    lower.includes('rate') || lower.includes('fee');
+
                 // Check FAQs
                 const faqMatch = FAQS.find(f =>
                     lower.includes(f.question.toLowerCase().split(' ').slice(0, 3).join(' ')) ||
@@ -68,34 +76,34 @@ export const ChatBot: React.FC = () => {
                 if (faqMatch) return faqMatch.answer;
 
                 // Check Specific Pricing Logic
-                if (lower.includes('price') || lower.includes('how much') || lower.includes('cost') || lower.includes('rm')) {
+                if (isPricingQuery) {
                     let priceNote = "Our Boarding starts at RM40 and Daycare at RM20 for small dogs.";
-                    if (lower.includes('cat') || lower.includes('rabbit')) {
+                    if (lower.includes('cat') || lower.includes('rabbit') || lower.includes('kitty')) {
                         priceNote = `For cats/rabbits, Daycare is RM${PRICING_DATA.cats_rabbits.daycare[0].normal} and Boarding is RM${PRICING_DATA.cats_rabbits.boarding[0].normal}.`;
-                    } else if (lower.includes('large') || lower.includes('giant') || lower.includes('big')) {
+                    } else if (lower.includes('large') || lower.includes('giant') || lower.includes('big') || lower.includes('kg > 15')) {
                         priceNote = `For large dogs (>15kg), Boarding is RM${PRICING_DATA.dogs.boarding[2].normal} and Daycare is RM${PRICING_DATA.dogs.daycare[2].normal}.`;
-                    } else if (lower.includes('medium')) {
+                    } else if (lower.includes('medium') || lower.includes('moderate')) {
                         priceNote = `For medium dogs (8-15kg), Boarding is RM${PRICING_DATA.dogs.boarding[1].normal} and Daycare is RM${PRICING_DATA.dogs.daycare[1].normal}.`;
                     }
-                    return `${priceNote} Peak seasons (CNY/Raya) have a RM10 surcharge. Would you like a person to calculate a final quote?`;
+                    return `${priceNote} Peak seasons have a RM10 surcharge. Since I'm just a bot, would you like our human agent to calculate the exact total for your dates?`;
                 }
 
                 // Check Routine / Hours
-                if (lower.includes('time') || lower.includes('routine') || lower.includes('schedule') || lower.includes('open')) {
+                if (lower.includes('time') || lower.includes('routine') || lower.includes('schedule') || lower.includes('open') || lower.includes('hour')) {
                     return "Our daily routine starts at 7 AM with feeding. Check-in is at 2 PM and Check-out at 12 PM. We are open every day, but appointments are required!";
                 }
 
                 // Check Rules (Vaccines/Diapers)
-                if (lower.includes('vaccine') || lower.includes('injection') || lower.includes('sick') || lower.includes('safety')) {
+                if (lower.includes('vaccine') || lower.includes('injection') || lower.includes('sick') || lower.includes('safety') || lower.includes('shot')) {
                     return "Safety is our priority! 💉 All pets must be fully vaccinated (DHPPi + Lepto). We also have strict hygiene SOPs and separate zones for cats and dogs.";
                 }
-                if (lower.includes('male') || lower.includes('boy') || lower.includes('pee') || lower.includes('diaper')) {
-                    return "Male dogs are welcome but MUST wear 'Belly Bands' (diapers) indoors to prevent marking. Please bring your own!";
+                if (lower.includes('male') || lower.includes('boy') || lower.includes('pee') || lower.includes('diaper') || lower.includes('belly band')) {
+                    return "Male dogs are welcome but MUST wear 'Belly Bands' (diapers) indoors to prevent marking. Please bring your own! We have them available if you forget.";
                 }
 
                 // Check Facility / Location
-                if (lower.includes('where') || lower.includes('location') || lower.includes('address')) {
-                    return `We are located at ${CONTACT_INFO.address}. It's a cage-free, home-style environment in Sri Petaling.`;
+                if (lower.includes('where') || lower.includes('location') || lower.includes('address') || lower.includes('find us')) {
+                    return `We are located at ${CONTACT_INFO.address}. It's a cage-free, home-style environment in Sri Petaling. Looking forward to seeing you!`;
                 }
 
                 return null;
