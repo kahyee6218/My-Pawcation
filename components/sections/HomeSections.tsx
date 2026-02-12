@@ -9,7 +9,7 @@ export const MainHero: React.FC = () => {
       {/* Background Image */}
       <div className="absolute inset-0 z-0">
         <img
-          src="/assets/Header- Banner.png"
+          src="/assets/Header-Banner.png"
           alt="My Pawcation Home Environment"
           className="w-full h-full object-cover object-center scale-105"
         />
@@ -70,7 +70,7 @@ export const AboutPreview: React.FC = () => {
           <div className="order-2 md:order-1 grid grid-cols-2 gap-3">
             <div className="translate-y-6">
               <img
-                src="/assets/IMG_6868.jpeg"
+                src="/assets/Picture center.jpeg"
                 className="rounded-2xl shadow-md object-cover h-64 w-full"
                 alt="Our cozy boarding facility"
               />
@@ -187,33 +187,33 @@ export const HowItWorks: React.FC = () => {
 
           {/* Step 1 */}
           <div className="text-center relative z-10">
-            <div className="w-16 h-16 mx-auto bg-white rounded-full flex items-center justify-center text-brand-dark font-bold text-xl shadow-md border-4 border-brand-cream mb-4">
+            <div className="w-20 h-20 mx-auto bg-white rounded-full flex items-center justify-center text-brand-dark font-extrabold text-2xl shadow-md border-4 border-brand-cream mb-6">
               1
             </div>
-            <h3 className="font-bold text-lg text-brand-dark mb-2">Contact Us</h3>
-            <p className="text-stone-600 leading-relaxed px-4 text-sm">
+            <h3 className="font-extrabold text-2xl text-brand-dark mb-3 uppercase tracking-tight">Contact Us</h3>
+            <p className="text-stone-700 leading-relaxed px-4 text-lg font-medium">
               Reach out via WhatsApp or Social Media to check availability.
             </p>
           </div>
 
           {/* Step 2 */}
           <div className="text-center relative z-10">
-            <div className="w-16 h-16 mx-auto bg-white rounded-full flex items-center justify-center text-brand-dark font-bold text-xl shadow-md border-4 border-brand-cream mb-4">
+            <div className="w-20 h-20 mx-auto bg-white rounded-full flex items-center justify-center text-brand-dark font-extrabold text-2xl shadow-md border-4 border-brand-cream mb-6">
               2
             </div>
-            <h3 className="font-bold text-lg text-brand-dark mb-2">Confirm Dates</h3>
-            <p className="text-stone-600 leading-relaxed px-4 text-sm">
+            <h3 className="font-extrabold text-2xl text-brand-dark mb-3 uppercase tracking-tight">Confirm Dates</h3>
+            <p className="text-stone-700 leading-relaxed px-4 text-lg font-medium">
               We'll confirm the slots for your requested dates.
             </p>
           </div>
 
           {/* Step 3 */}
           <div className="text-center relative z-10">
-            <div className="w-16 h-16 mx-auto bg-white rounded-full flex items-center justify-center text-brand-dark font-bold text-xl shadow-md border-4 border-brand-cream mb-4">
+            <div className="w-20 h-20 mx-auto bg-white rounded-full flex items-center justify-center text-brand-dark font-extrabold text-2xl shadow-md border-4 border-brand-cream mb-6">
               3
             </div>
-            <h3 className="font-bold text-lg text-brand-dark mb-2">Secure Slot</h3>
-            <p className="text-stone-600 leading-relaxed px-4 text-sm">
+            <h3 className="font-extrabold text-2xl text-brand-dark mb-3 uppercase tracking-tight">Secure Slot</h3>
+            <p className="text-stone-700 leading-relaxed px-4 text-lg font-medium">
               Pay 50% deposit or full payment to lock in your booking.
             </p>
           </div>

@@ -1,35 +1,66 @@
 import React, { useState } from 'react';
-import { Star, Plus, Minus, Check, Dog, Cat, Scissors, Home, Info, Search } from 'lucide-react';
+import { Star, Plus, Minus, Check, Dog, Cat, Scissors, Home, Info, Search, ChevronLeft, ChevronRight } from 'lucide-react';
 import { SectionTitle, Card } from '../ui/Elements';
 import { TESTIMONIALS, FAQS, PRICING_DATA } from '../../constants';
 
 export const Testimonials: React.FC = () => {
-    const [searchTerm, setSearchTerm] = useState('');
+    const [currentIndex, setCurrentIndex] = useState(0);
+    const reviewsPerView = { mobile: 1, tablet: 2, desktop: 3 };
 
-    const filteredTestimonials = TESTIMONIALS.filter(t =>
-        t.text.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        t.breed.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        t.dogName.toLowerCase().includes(searchTerm.toLowerCase())
-    );
+    const next = () => {
+        setCurrentIndex((prev) => (prev + 1) % TESTIMONIALS.length);
+    };
+
+    const prev = () => {
+        setCurrentIndex((prev) => (prev - 1 + TESTIMONIALS.length) % TESTIMONIALS.length);
+    };
 
     return (
-        <section id="reviews" className="py-12 bg-white scroll-mt-24">
+        <section id="reviews" className="py-12 bg-white scroll-mt-24 overflow-hidden">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <SectionTitle title="Happy Tails" subtitle="WhatsApp Reviews" />
 
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {TESTIMONIALS.map(review => (
-                        <div key={review.id} className="group">
-                            <Card className="p-0 overflow-hidden hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-2 border-none">
-                                <img
-                                    src={review.imageUrl}
-                                    alt={`WhatsApp Review ${review.id}`}
-                                    className="w-full h-auto object-cover"
-                                />
-                                <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/20 to-transparent h-12 opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                            </Card>
-                        </div>
-                    ))}
+                <div className="relative group max-w-5xl mx-auto">
+                    {/* Carousel Container */}
+                    <div className="flex transition-transform duration-500 ease-out gap-4 md:gap-6"
+                        style={{ transform: `translateX(-${currentIndex * (100 / reviewsPerView.desktop)}%)` }}>
+                        {TESTIMONIALS.map((review) => (
+                            <div key={review.id} className="min-w-[85%] md:min-w-[45%] lg:min-w-[31.333%] flex-shrink-0">
+                                <Card className="p-0 overflow-hidden shadow-md hover:shadow-xl transition-all border-none aspect-square">
+                                    <img
+                                        src={review.imageUrl}
+                                        alt={`WhatsApp Review ${review.id}`}
+                                        className="w-full h-full object-cover"
+                                    />
+                                </Card>
+                            </div>
+                        ))}
+                    </div>
+
+                    {/* Navigation Buttons */}
+                    <button
+                        onClick={prev}
+                        className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-2 md:-translate-x-6 bg-white/95 p-2 rounded-full shadow-lg text-brand-dark hover:bg-brand-green hover:text-white transition-all z-10 opacity-0 group-hover:opacity-100 border border-stone-100"
+                    >
+                        <ChevronLeft size={20} />
+                    </button>
+                    <button
+                        onClick={next}
+                        className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-2 md:translate-x-6 bg-white/95 p-2 rounded-full shadow-lg text-brand-dark hover:bg-brand-green hover:text-white transition-all z-10 opacity-0 group-hover:opacity-100 border border-stone-100"
+                    >
+                        <ChevronRight size={20} />
+                    </button>
+
+                    {/* Pagination Dots */}
+                    <div className="flex justify-center gap-2 mt-8">
+                        {TESTIMONIALS.map((_, idx) => (
+                            <button
+                                key={idx}
+                                onClick={() => setCurrentIndex(idx)}
+                                className={`h-1.5 w-1.5 rounded-full transition-all ${currentIndex === idx ? 'bg-brand-green w-4' : 'bg-stone-200'}`}
+                            />
+                        ))}
+                    </div>
                 </div>
             </div>
         </section>

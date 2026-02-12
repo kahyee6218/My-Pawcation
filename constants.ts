@@ -118,60 +118,14 @@ export const PRICING_DATA = {
 };
 
 export const TESTIMONIALS: Testimonial[] = [
-  {
-    id: 1,
-    ownerName: "Happy Owner",
-    dogName: "Guest",
-    breed: "Verified Stay",
-    text: "Review from our happy client about their pet's stay with us.",
-    rating: 5,
-    imageUrl: "/assets/Reviews1.png"
-  },
-  {
-    id: 2,
-    ownerName: "Happy Owner",
-    dogName: "Guest",
-    breed: "Verified Stay",
-    text: "Another wonderful review highlight from a satisfied customer.",
-    rating: 5,
-    imageUrl: "/assets/Reviews2.png"
-  },
-  {
-    id: 3,
-    ownerName: "Happy Owner",
-    dogName: "Guest",
-    breed: "Verified Stay",
-    text: "Excellent service and care for our furkids!",
-    rating: 5,
-    imageUrl: "/assets/Reviews3.png"
-  },
-  {
-    id: 4,
-    ownerName: "Happy Owner",
-    dogName: "Guest",
-    breed: "Verified Stay",
-    text: "Highly recommended for pet boarding in KL.",
-    rating: 5,
-    imageUrl: "/assets/Reviews4.png"
-  },
-  {
-    id: 5,
-    ownerName: "Happy Owner",
-    dogName: "Guest",
-    breed: "Verified Stay",
-    text: "Always trust My Pawcation for my pets.",
-    rating: 5,
-    imageUrl: "/assets/Reviews5.png"
-  },
-  {
-    id: 6,
-    ownerName: "Happy Owner",
-    dogName: "Guest",
-    breed: "Verified Stay",
-    text: "Great experience every single time.",
-    rating: 5,
-    imageUrl: "/assets/Reviews6.png"
-  }
+  { id: 1, ownerName: "Happy Owner", dogName: "Guest", breed: "Verified Stay", text: "", rating: 5, imageUrl: "/assets/Review1.png" },
+  { id: 2, ownerName: "Happy Owner", dogName: "Guest", breed: "Verified Stay", text: "", rating: 5, imageUrl: "/assets/Review2.png" },
+  { id: 3, ownerName: "Happy Owner", dogName: "Guest", breed: "Verified Stay", text: "", rating: 5, imageUrl: "/assets/Review3.png" },
+  { id: 4, ownerName: "Happy Owner", dogName: "Guest", breed: "Verified Stay", text: "", rating: 5, imageUrl: "/assets/Review4.png" },
+  { id: 5, ownerName: "Happy Owner", dogName: "Guest", breed: "Verified Stay", text: "", rating: 5, imageUrl: "/assets/Review5.png" },
+  { id: 6, ownerName: "Happy Owner", dogName: "Guest", breed: "Verified Stay", text: "", rating: 5, imageUrl: "/assets/Review6.png" },
+  { id: 7, ownerName: "Happy Owner", dogName: "Guest", breed: "Verified Stay", text: "", rating: 5, imageUrl: "/assets/Review7.png" },
+  { id: 8, ownerName: "Happy Owner", dogName: "Guest", breed: "Verified Stay", text: "", rating: 5, imageUrl: "/assets/Review8.png" }
 ];
 
 export const FAQS: FaqItem[] = [
@@ -212,7 +166,7 @@ export const FAQS: FaqItem[] = [
 export const CONTACT_INFO = {
   address: "Endah Regal Condominium, Jalan 1/149e, Sri Petaling, 57000 Kuala Lumpur",
   whatsapp: "+60 17-384 0723",
-  email: "hello@mypawcation.com",
+  email: "csmypawcation@gmail.com",
   facebook: "https://www.facebook.com/mypawcation",
   instagram: "https://www.instagram.com/mypawcation",
   xiaohongshu: "https://www.xiaohongshu.com/user/profile/67f11577000000000e01dc26",
