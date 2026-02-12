@@ -60,99 +60,98 @@ export const ChatBot: React.FC = () => {
             const lower = content.toLowerCase().trim();
             const words = lower.split(/[\s?!.,]+/);
 
-            // --- ADVANCED INTENT ENGINE ---
-            const intents = {
-                pricing: {
-                    keywords: ['price', 'much', 'mcuh', 'rm', 'cost', 'total', 'rate', 'fee', 'charge', 'money', 'cheap', 'expensive'],
-                    score: 0
-                },
-                booking: {
-                    keywords: ['book', 'plan', 'stay', 'reservation', 'slot', 'available', 'check in', 'date', 'holiday', 'boarding', 'daycare'],
-                    score: 0
-                },
-                rules: {
-                    keywords: ['vaccine', 'injection', 'shot', 'medical', 'safety', 'rule', 'sop', 'male', 'boy', 'pee', 'diaper', 'mark', 'belly band', 'sick', 'health'],
-                    score: 0
-                },
-                location: {
-                    keywords: ['where', 'locate', 'address', 'place', 'street', 'direction', 'far', 'near', 'sri petaling', 'find'],
-                    score: 0
-                },
-                human: {
-                    keywords: ['agent', 'human', 'person', 'founder', 'talk', 'whatsapp', 'call', 'contact', 'speak', 'help', 'emergency'],
-                    score: 0
-                }
-            };
+            // --- ADVANCED SEMANTIC INTENT ENGINE v2 ---
+            const intentMap = [
+                { id: 'pricing', weight: 0, phrases: ['price', 'much', 'mcuh', 'rm', 'cost', 'total', 'rate', 'fee', 'charge', 'money', 'how to pay'] },
+                { id: 'booking', weight: 0, phrases: ['book', 'plan', 'stay', 'reservation', 'slot', 'available', 'check in', 'date', 'holiday', 'boarding', 'daycare'] },
+                { id: 'rules', weight: 0, phrases: ['vaccine', 'injection', 'shot', 'medical', 'safety', 'rule', 'sop', 'male', 'boy', 'pee', 'diaper', 'mark', 'belly band'] },
+                { id: 'location', weight: 0, phrases: ['where', 'locate', 'address', 'place', 'street', 'direction', 'far', 'near', 'sri petaling'] },
+                { id: 'human', weight: 0, phrases: ['agent', 'human', 'person', 'founder', 'talk', 'whatsapp', 'call', 'contact', 'speak', 'help'] },
+                { id: 'insult', weight: 0, phrases: ['stupid', 'dumb', 'bad', 'useless', 'idiot', 'bot', 'not working'] }
+            ];
 
-            // Calculate scores
-            Object.values(intents).forEach(intent => {
-                intent.keywords.forEach(k => {
-                    if (lower.includes(k)) intent.score += 2;
-                    words.forEach(w => { if (w === k) intent.score += 3; });
+            // Semantic Scoring
+            intentMap.forEach(intent => {
+                intent.phrases.forEach(p => {
+                    if (lower.includes(p)) intent.weight += 10; // High score for phrase contains
+                    if (words.includes(p)) intent.weight += 5;  // Bonus for exact word match
                 });
             });
 
-            // State matching
+            // Sort by weight
+            const topIntent = intentMap.sort((a, b) => b.weight - a.weight)[0];
+
+            // Specific Context Flags
             const isBoarding = lower.includes('boarding') || lower.includes('overnight') || lower.includes('sleep');
             const isDaycare = lower.includes('daycare') || lower.includes('day') || lower.includes('dropping');
             const isSmall = lower.includes('small') || lower.includes('tiny') || lower.includes('7kg');
             const isMedium = lower.includes('medium') || lower.includes('moderate') || lower.includes('15kg');
             const isLarge = lower.includes('large') || lower.includes('big') || lower.includes('giant');
 
-            // --- RESOLUTION LOGIC ---
+            // --- BRAIN: INTENT RESOLUTION ---
 
-            // 1. Priority: State Machine for Booking
-            if (chatState === 'asking_booking_type') {
+            // Priority 0: Easter Egg for Insults (Shows "Understanding")
+            if (topIntent.id === 'insult' && topIntent.weight > 0) {
+                botResponse = "I'm still learning the complexity of human language! 🐾 My apologies if I'm being a bit slow. I'm trained on My Pawcation's specific rules (Pricing, Vaccines, SOPs). How can I better assist you with those?";
+                options = ['Ask about Pricing', 'Rules & FAQ', 'Talk to Human Agent'];
+            }
+            // Priority 1: State Machine (Booking Plan)
+            else if (chatState === 'asking_booking_type') {
                 const type = isBoarding ? 'Boarding' : isDaycare ? 'Daycare' : 'Boarding';
                 setBookingRef(prev => ({ ...prev, type }));
-                botResponse = `I understand you're looking for ${type}. To give you the correct advice, how big is your furkid? (Small, Medium, or Large?)`;
+                botResponse = `I've noted that you're interested in ${type}. To give you specific advice (including size-based pricing), how big is your furkid?`;
                 options = ['Small (≤7kg)', 'Medium (8–15kg)', 'Large (>15kg)'];
                 nextState = 'asking_dog_size';
             }
             else if (chatState === 'asking_dog_size') {
                 const size = isSmall ? 'Small' : isMedium ? 'Medium' : isLarge ? 'Large' : 'Small';
                 setBookingRef(prev => ({ ...prev, size }));
-                botResponse = `Got it, a ${size} furkid! last thing: Are you looking at any specific dates or a holiday period? (Our peak seasons like CNY/Raya have different slots).`;
+                botResponse = `Got it, a ${size} furkid! last question: Are you looking at any specific holiday dates (CNY, Raya, etc.)? Our slots for peak season fill up much faster.`;
                 options = ['Normal Weekday', 'Holiday / Peak Season'];
                 nextState = 'asking_dates';
             }
             else if (chatState === 'asking_dates') {
-                botResponse = `Analysis Complete: For a ${bookingRef.size} dog doing ${bookingRef.type}, I recommend checking our current slots on WhatsApp. \n\nTips:\n• Vaccination card is a MUST.\n• Slots for holidays fill 3 weeks early.\n• Bring their own food!`;
-                options = ['Open WhatsApp', 'Reset Bot'];
+                botResponse = `Analysis for your ${bookingRef.size} furkid's ${bookingRef.type}: \n\n1. Based on current data, slots for your requested periods may be tight. \n2. Mandatory Check: Please ensure DHPPi + Lepto vaccines are up to date! \n3. Pricing: We suggest a final quote via WhatsApp. \n\nShall I connect you with our human agent now?`;
+                options = ['Talk to Human Agent', 'Ask about Pricing'];
                 nextState = 'idle';
             }
-            // 2. Intent Overrides
-            else if (intents.human.score > 2) {
-                botResponse = "I've detected that you'd like to talk to a human! I'm connecting you to our support agent on WhatsApp for immediate assistance. 🐾";
-                options = ['Open WhatsApp'];
-            }
-            else if (intents.pricing.score > 2) {
-                let p = "Our entry-level small dog boarding starts at RM40, and daycare at RM20.";
-                if (isLarge) p = `For large dogs (>15kg), it is RM${PRICING_DATA.dogs.boarding[2].normal} for boarding.`;
-                else if (isMedium) p = `For medium dogs (8-15kg), it is RM${PRICING_DATA.dogs.boarding[1].normal} for boarding.`;
-                else if (lower.includes('cat') || lower.includes('rabbit')) p = `Cats & Rabbits go for RM${PRICING_DATA.cats_rabbits.boarding[0].normal}.`;
-
-                botResponse = `${p} There is a RM10 surcharge during Peak Seasons. Would you like a human agent to calculate the final total for you?`;
-                options = ['Talk to Human Agent', 'Plan a Booking'];
-            }
-            else if (intents.rules.score > 2) {
-                if (lower.includes('male') || lower.includes('boy') || lower.includes('mark') || lower.includes('pee')) {
-                    botResponse = "Male dogs are super welcome! 🐾 However, they MUST wear 'Belly Bands' (diapers) at all times indoors to prevent marking. Please bring your own, or we can provide them!";
-                } else {
-                    botResponse = "Safety is non-negotiable! 💉 All pets must be fully vaccinated (DHPPi + Lepto). We are cage-free and maintain high hygiene standards.";
+            // Priority 2: Semantic Intent Overrides
+            else if (topIntent.weight > 0) {
+                switch (topIntent.id) {
+                    case 'human':
+                        botResponse = "I'm connecting you to our Human Support Agent on WhatsApp right now for expert help! 🐾";
+                        options = ['Open WhatsApp'];
+                        break;
+                    case 'pricing':
+                        let p = "Our Boarding starts at RM40/night and Daycare at RM20 for small dogs.";
+                        if (isLarge) p = `Since you mentioned a Large dog, Boarding is RM${PRICING_DATA.dogs.boarding[2].normal}.`;
+                        else if (isMedium) p = `For medium dogs, Boarding is RM${PRICING_DATA.dogs.boarding[1].normal}.`;
+                        botResponse = `${p} Note: Peak seasons have a RM10 surcharge. Would you like a person to calculate your exact total?`;
+                        options = ['Talk to Human Agent', 'Plan a Booking'];
+                        break;
+                    case 'rules':
+                        if (lower.includes('male') || lower.includes('boy')) {
+                            botResponse = "Boys are welcome! 🐾 Just a reminder: Male dogs MUST wear 'Belly Bands' (diapers) indoors to prevent marking. Please bring your own!";
+                        } else {
+                            botResponse = "Safety is our priority. 💉 All guests must be fully vaccinated (DHPPi + Lepto). We are cage-free but have strict hygiene rules.";
+                        }
+                        options = ['Rules & FAQ', 'Talk to Human Agent'];
+                        break;
+                    case 'location':
+                        botResponse = `We are located in ${CONTACT_INFO.address}. It's a cozy home-style environment!`;
+                        options = ['Plan a Booking', 'Talk to Human Agent'];
+                        break;
+                    case 'booking':
+                        botResponse = "I'll help you prepare for a stay! 🐾 Is this for Boarding (overnight) or Daycare (day only)?";
+                        options = ['Boarding', 'Daycare'];
+                        nextState = 'asking_booking_type';
+                        break;
                 }
             }
-            else if (intents.location.score > 2) {
-                botResponse = `We are based in ${CONTACT_INFO.address}. It's a cozy home-stay environment in Sri Petaling!`;
-            }
-            else if (intents.booking.score > 2) {
-                botResponse = "I'll guide you through our booking analyzer! Is this for Boarding (overnight) or Daycare?";
-                options = ['Boarding', 'Daycare'];
-                nextState = 'asking_booking_type';
-            }
+            // Priority 3: Natural Fallback (Smarter Clarification)
             else {
-                botResponse = "I'm still learning natural language, but I've analyzed your message. I can help with 'Pricing', 'Rules', or starting a 'Booking Plan'. Which would you like?";
-                options = ['Ask about Pricing', 'Plan a Booking', 'Talk to Human Agent'];
+                botResponse = "I want to make sure I understand you correctly. 🐾 Are you asking about our 'Pricing', 'Hygiene Rules', or looking to 'Book a Stay'?";
+                options = ['Ask about Pricing', 'Rules & FAQ', 'Plan a Booking', 'Talk to Human Agent'];
             }
 
             setChatState(nextState);

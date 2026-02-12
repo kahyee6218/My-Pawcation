@@ -3,10 +3,12 @@ import { Instagram, Heart, MessageCircle, ExternalLink } from 'lucide-react';
 import { CONTACT_INFO } from '../../constants';
 
 const IG_POSTS = [
-    { id: 1, image: 'https://instagram.fkul8-2.fna.fbcdn.net/v/t51.2885-15/631179265_17851586916670950_7079759530187246386_n.jpg?stp=dst-jpg_e15_p640x640_tt6&_nc_ht=instagram.fkul8-2.fna.fbcdn.net&_nc_cat=106&_nc_oc=Q6cZ2QHvxdfCTPfBolAOtuTmRoeMElAckfRy6RoshWaMD28mpbwUYZYQGZ492gdF1BdSj6LNwJ3PntGnw2r1HO2RLDog&_nc_ohc=W1ZNKNW_8NQQ7kNvwFz0nR2&_nc_gid=PW_XcTbEn8Qd490VJqEUdA&edm=AOQ1c0wBAAAA&ccb=7-5&oh=00_AfsevWbUne6xornl98N_lDMR-OKw3Kx1Jx06FcqJaYFc2Q&oe=6993A4C6&_nc_sid=8b3546', likes: '124', comments: '12' },
-    { id: 2, image: 'https://instagram.fkul8-2.fna.fbcdn.net/v/t51.2885-15/626262301_17851157211670950_9157709564449968146_n.jpg?stp=dst-jpg_e35_p640x640_sh0.08_tt6&_nc_ht=instagram.fkul8-2.fna.fbcdn.net&_nc_cat=106&_nc_oc=Q6cZ2QHvxdfCTPfBolAOtuTmRoeMElAckfRy6RoshWaMD28mpbwUYZYQGZ492gdF1BdSj6LNwJ3PntGnw2r1HO2RLDog&_nc_ohc=TF_eZ_U-lNMQ7kNvwGTOPgv&_nc_gid=PW_XcTbEn8Qd490VJqEUdA&edm=AOQ1c0wBAAAA&ccb=7-5&oh=00_AfsndGjmy4Kx1IhZmJ8XlB9jUek102fRbC97mFdrDR6qfA&oe=69939A67&_nc_sid=8b3546', likes: '89', comments: '5' },
-    { id: 3, image: 'https://instagram.fkul8-2.fna.fbcdn.net/v/t51.2885-15/626283774_17850526917670950_914310762650359551_n.jpg?stp=dst-jpg_e15_p640x640_tt6&_nc_ht=instagram.fkul8-2.fna.fbcdn.net&_nc_cat=106&_nc_oc=Q6cZ2QHvxdfCTPfBolAOtuTmRoeMElAckfRy6RoshWaMD28mpbwUYZYQGZ492gdF1BdSj6LNwJ3PntGnw2r1HO2RLDog&_nc_ohc=-bNCnnrBijMQ7kNvwGq_qpE&_nc_gid=PW_XcTbEn8Qd490VJqEUdA&edm=AOQ1c0wBAAAA&ccb=7-5&oh=00_Afvb62TEjzebIWWGsaxPisx0Jonz2LETlYHD4ozIxyliyA&oe=6993858F&_nc_sid=8b3546', likes: '210', comments: '18' },
-    { id: 4, image: 'https://instagram.fkul8-2.fna.fbcdn.net/v/t51.2885-15/625685547_17849733123670950_803894237524073057_n.jpg?stp=dst-jpg_e35_s640x640_sh0.08_tt6&_nc_ht=instagram.fkul8-2.fna.fbcdn.net&_nc_cat=106&_nc_oc=Q6cZ2QHvxdfCTPfBolAOtuTmRoeMElAckfRy6RoshWaMD28mpbwUYZYQGZ492gdF1BdSj6LNwJ3PntGnw2r1HO2RLDog&_nc_ohc=HhrH68vcirsQ7kNvwGcKdWu&_nc_gid=PW_XcTbEn8Qd490VJqEUdA&edm=AOQ1c0wBAAAA&ccb=7-5&oh=00_Aftz13RCTNL0xwysjrbxhuNoexatTaiTdD4NSkgvcRcOOw&oe=69938EA4&_nc_sid=8b3546', likes: '156', comments: '9' },
+    { id: 1, image: '/assets/ig_post_1.jpg', likes: '142', comments: '8' },
+    { id: 2, image: '/assets/ig_post_2.jpg', likes: '95', comments: '4' },
+    { id: 3, image: '/assets/ig_post_3.jpg', likes: '210', comments: '15' },
+    { id: 4, image: '/assets/ig_post_4.jpg', likes: '167', comments: '11' },
+    { id: 5, image: '/assets/ig_post_5.jpg', likes: '88', comments: '6' },
+    { id: 6, image: '/assets/ig_post_6.jpg', likes: '134', comments: '9' },
 ];
 
 export const InstagramFeed: React.FC = () => {
