@@ -1,8 +1,9 @@
 import React from 'react';
 import { Navbar, Footer } from './components/ui/Layout';
-import { Hero, AboutPreview, Services, HowItWorks } from './components/sections/HomeSections';
+import { Hero, AboutPreview, WhyChooseUs, DailyRoutine, HowItWorks } from './components/sections/HomeSections';
 import { Testimonials, Pricing, FAQ } from './components/sections/DetailSections';
 import { BookingForm } from './components/sections/BookingForm';
+import { CONTACT_INFO } from './constants';
 
 function App() {
   return (
@@ -12,7 +13,8 @@ function App() {
       <main className="flex-grow">
         <Hero />
         <AboutPreview />
-        <Services />
+        <WhyChooseUs />
+        <DailyRoutine />
         <HowItWorks />
         <Testimonials />
         <Pricing />
@@ -24,7 +26,7 @@ function App() {
 
       {/* WhatsApp Floating Button */}
       <a
-        href="https://wa.me/"
+        href={`https://wa.me/${CONTACT_INFO.whatsapp.replace(/[^0-9]/g, '')}`}
         target="_blank"
         rel="noopener noreferrer"
         className="fixed bottom-6 right-6 z-50 bg-[#25D366] text-white p-4 rounded-full shadow-lg hover:bg-[#20ba5a] transition-colors transform hover:scale-110 flex items-center justify-center"

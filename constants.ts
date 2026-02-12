@@ -8,74 +8,120 @@ import {
   Clock,
   Bone,
   MapPin,
-  Car
+  Car,
+  CheckCircle,
+  Stethoscope,
+  Sparkles
 } from 'lucide-react';
 import { NavItem, Service, Testimonial, FaqItem, Facility, PricingTier } from './types';
 
 export const NAV_ITEMS: NavItem[] = [
   { label: 'Home', href: '#home' },
   { label: 'About', href: '#about' },
-  { label: 'Services', href: '#services' },
-  { label: 'How It Works', href: '#how-it-works' },
-  { label: 'Reviews', href: '#reviews' },
+  { label: 'Why Us', href: '#why-us' },
+  { label: 'Routine', href: '#routine' },
   { label: 'Pricing', href: '#pricing' },
   { label: 'FAQ', href: '#faq' },
 ];
 
-export const SERVICES: Service[] = [
+export const WHY_CHOOSE_US = [
   {
-    title: 'Home-Style Boarding',
-    description: 'Cage-free living in a warm home environment. Your dog sleeps indoors with soothing music and 24/7 supervision.',
-    icon: Home,
-    features: ['No cages (Baby gates only)', 'Air-conditioned zones', 'Daily photo/video updates', 'Evening tuck-in service'],
-    price: 'From RM40/night'
+    title: "Home-Style & Cage-Free",
+    description: "A cage-free environment where pets feel at home.",
+    icon: Home
   },
   {
-    title: 'Daycare Fun',
-    description: 'Perfect for busy parents. A day full of socialization, sensory games, and nap times in our secure zones.',
-    icon: Sun,
-    features: ['Group play sessions', 'Behavioral monitoring', 'Rest periods', 'Feeding included'],
-    price: 'From RM20/day'
+    title: "Low Stress & Limited Spots",
+    description: "We limit the number of pets to ensure attentive care.",
+    icon: Heart
   },
   {
-    title: 'Visit-to-Feed',
-    description: 'We come to you! Ideal for cats or dogs who prefer staying in their own environment.',
-    icon: Car,
-    features: ['Feeding & Water top-up', 'Litter/Potty clean up', 'Playtime & Cuddles', 'Home security check'],
-    price: 'From RM30/visit'
+    title: "Separate Areas",
+    description: "Distinct zones for cats and dogs for safety and comfort.",
+    icon: ShieldCheck
   },
   {
-    title: 'Special Care',
-    description: 'Dedicated attention for seniors, puppies, or pets with medical needs. We treat them like our own.',
-    icon: Heart,
-    features: ['Medication administration', 'Special diets handling', 'Mobility support', 'Isolation zone available'],
-    price: 'Custom Quote'
+    title: "Daily Updates",
+    description: "Photos and videos sent daily to give you peace of mind.",
+    icon: Sun
+  },
+  {
+    title: "Hygienic Routine",
+    description: "Clean, well-managed environment with strict SOPs.",
+    icon: Sparkles
+  },
+  {
+    title: "Flexible Stays",
+    description: "Suitable for both short daycare and long-term boarding.",
+    icon: Clock
   }
 ];
 
-export const PRICING_TIERS: PricingTier[] = [
-  {
-    size: "Small",
-    weight: "≤ 7kg",
-    daycarePrice: "RM 20",
-    boardingPrice: "RM 40",
-    features: ["Standard Playtime", "Daily Updates"]
-  },
-  {
-    size: "Medium",
-    weight: "7 - 15kg",
-    daycarePrice: "RM 30",
-    boardingPrice: "RM 55",
-    features: ["Standard Playtime", "Daily Updates"]
-  },
-  {
-    size: "Large",
-    weight: "15kg +",
-    daycarePrice: "RM 40",
-    boardingPrice: "RM 70",
-    features: ["Standard Playtime", "Daily Updates"]
-  }
+export const DAILY_ROUTINE = [
+  { time: "7:00 AM - 9:00 AM", activity: "Feeding & Cleaning" },
+  { time: "9:00 AM - 11:00 AM", activity: "Playtime / Walks / Interaction" },
+  { time: "Afternoon", activity: "Rest, Free Time & Monitoring" },
+  { time: "Evening", activity: "Feeding + Updates to Owners" }
 ];
+
+export const HYGIENE_SOP = [
+  "Disinfect food & water bowls daily",
+  "Separate areas for cats and dogs",
+  "Isolation protocol for sick pets",
+  "Regular cleaning of living and play areas",
+  "Only vaccinated pets are accepted"
+];
+
+export const PRICING_DATA = {
+  dogs: {
+    daycare: [
+      { size: "Small (≤7kg)", normal: "RM20", peak: "RM30" },
+      { size: "Medium (8–15kg)", normal: "RM30", peak: "RM40" },
+      { size: "Large (>15kg)", normal: "RM40", peak: "RM50" }
+    ],
+    boarding: [
+      { size: "Small (≤7kg)", normal: "RM40", peak: "RM50" },
+      { size: "Medium (8–15kg)", normal: "RM60", peak: "RM70" },
+      { size: "Large (>15kg)", normal: "RM80", peak: "RM90" }
+    ],
+    monthly: [
+      { size: "Small", price: "RM850 / month" },
+      { size: "Medium", price: "RM1250 / month" },
+      { size: "Large", price: "RM1650 / month" }
+    ],
+    grooming: [
+      { size: "Small", price: "RM45 – RM50" },
+      { size: "Medium", price: "RM55 – RM60" },
+      { size: "Large", price: "RM60 – RM65" }
+    ]
+  },
+  cats_rabbits: {
+    daycare: [
+      { type: "Standard", normal: "RM15", peak: "RM25" },
+      { type: "Long-hair / Special", normal: "RM20", peak: "RM25" }
+    ],
+    boarding: [
+      { type: "Standard", price: "RM30 – RM35" },
+      { type: "Long-hair / Special", price: "RM40 – RM45" }
+    ],
+    monthly: [
+      { type: "Standard", price: "RM650 / month" },
+      { type: "Long-hair / Special", price: "RM850 / month" }
+    ]
+  },
+  addons: [
+    { service: "Basic Grooming (Small ≤7kg)", price: "RM40" },
+    { service: "Basic Grooming (Med–Large)", price: "RM60" },
+    { service: "Pick-up & Drop-off (within 10km)", price: "RM20 – RM40" },
+    { service: "Training Reinforcement", price: "RM40 / session" },
+    { service: "Premium 1-on-1 Care", price: "+RM30 / day" },
+    { service: "Home Visit (Feeding/Care)", price: "RM50 – RM100" }
+  ]
+};
+
+// Keeping for compatibility with existing components if any, but ideally unused
+export const SERVICES: Service[] = []; 
+export const PRICING_TIERS: PricingTier[] = [];
 
 export const TESTIMONIALS: Testimonial[] = [
   {
@@ -109,25 +155,47 @@ export const TESTIMONIALS: Testimonial[] = [
 
 export const FAQS: FaqItem[] = [
   {
-    question: "Do you use cages?",
-    answer: "Absolutely not! We are a 100% cage-free facility. We use baby gates to separate play zones and ensure safety, just like in a real home."
+    question: "How do I make a booking?",
+    answer: "You can book by contacting us via PM or WhatsApp. Once dates are confirmed, you can pay a 50% deposit or 100% full payment to secure your slot."
   },
   {
-    question: "What vaccinations are required?",
-    answer: "For the safety of all guests, we strictly require proof of valid core vaccinations (Distemper, Parvovirus, Hepatitis) and Rabies. Kennel Cough (Bordetella) is highly recommended."
+    question: "What payment options do you accept?",
+    answer: "We accept 50% upfront (balance at check-out) or 100% upfront at the time of booking."
   },
   {
-    question: "Do I need to bring food?",
-    answer: "Yes, we recommend bringing your dog's regular food to prevent tummy upsets from switching diets. We have a fridge and freezer for fresh/raw food diets too!"
+    question: "What remain check-in/out times?",
+    answer: "Check-in: From 2:00 PM onwards. Check-out: By 12:00 PM (noon). Early/late requests subject to availability and charges."
   },
   {
-    question: "What if there is an emergency?",
-    answer: "We have a 24/7 standby vehicle and are partnered with a nearby veterinary clinic (5 mins away). We will contact you immediately while transporting your pet."
+    question: "Are vaccinations required?",
+    answer: "Yes. All dogs must be fully vaccinated before boarding. Proof of vaccination is required before or during check-in."
   },
   {
-    question: "How do you handle aggressive dogs?",
-    answer: "For the safety of our pack, we do not accept aggressive dogs. A behavioral assessment is conducted before the first boarding to ensure a harmonious environment."
+    question: "Do you accept male dogs?",
+    answer: "Yes, but they must wear diapers during their stay. Owners are required to provide the diapers."
+  },
+  {
+    question: "What should I bring?",
+    answer: "Your pet's food, diapers (for male dogs), any medication, leash, and optionally their favorite toy or blanket."
+  },
+  {
+    question: "Can I extend my pet's stay?",
+    answer: "Extensions are subject to availability. Please inform us as early as possible."
+  },
+  {
+    question: "Is the payment refundable?",
+    answer: "Payments and deposits are generally non-refundable as they reserve your slot. Policies will be shared during booking."
   }
 ];
+
+export const CONTACT_INFO = {
+  address: "No. 5, Jalan Badam 5, Taman Rakyat, Cheras, 56100 Kuala Lumpur",
+  whatsapp: "+60 17-384 0723",
+  email: "hello@mypawcation.com", // Assuming email stays same or generic if not provided
+  facebook: "https://www.facebook.com/mypawcation",
+  instagram: "https://www.instagram.com/mypawcation",
+  xiaohongshu: "https://www.xiaohongshu.com/user/profile/67f11577000000000e01dc26",
+  website: "https://my-pawcation.vercel.app/"
+};
 
 export const FACILITIES: Facility[] = [];

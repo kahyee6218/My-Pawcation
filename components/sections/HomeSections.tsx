@@ -1,7 +1,7 @@
 import React from 'react';
-import { ArrowRight, CheckCircle, Clock, ShieldCheck, Heart, Sparkles, Star } from 'lucide-react';
+import { ArrowRight, CheckCircle, Clock } from 'lucide-react';
 import { Button, SectionTitle, Card } from '../ui/Elements';
-import { SERVICES } from '../../constants';
+import { WHY_CHOOSE_US, DAILY_ROUTINE, HYGIENE_SOP, SERVICES } from '../../constants';
 
 export const Hero: React.FC = () => {
   return (
@@ -15,32 +15,30 @@ export const Hero: React.FC = () => {
           <div className="space-y-8 text-center lg:text-left">
             <div className="inline-flex items-center gap-2 bg-white px-4 py-2 rounded-full shadow-sm text-brand-dark font-bold text-sm border border-brand-sand">
               <span className="flex h-2 w-2 rounded-full bg-green-500"></span>
-              Limited Spots: 8 Dogs Max
+              Limited Spots: 8 Sets Max
             </div>
             <h1 className="text-5xl lg:text-7xl font-display font-extrabold text-brand-dark leading-[1.1]">
-              A Vacation Your <br />
-              <span className="text-brand-green inline-block transform -rotate-2">Dog Will Love</span>
+              Home-Style Pet Boarding for <br />
+              <span className="text-brand-green inline-block transform -rotate-2">Dogs & Cats</span>
             </h1>
+            <p className="text-xl text-stone-600 max-w-2xl mx-auto lg:mx-0 leading-relaxed">
+              Safe, cage-free, low-stress and professionally cared for — with daily updates for your peace of mind.
+            </p>
 
             <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
               <a href="#booking">
                 <Button variant="primary" size="lg">Book a Stay</Button>
               </a>
-              <a href="#how-it-works">
-                <Button variant="secondary" size="lg">How It Works</Button>
+              <a href="#why-us">
+                <Button variant="secondary" size="lg">Why Choose Us</Button>
               </a>
-            </div>
-            <div className="pt-6 flex flex-wrap items-center justify-center lg:justify-start gap-6 text-stone-500 font-medium text-sm">
-              <div className="flex items-center gap-2"><ShieldCheck size={18} className="text-brand-green" /> 100% Cage-Free</div>
-              <div className="flex items-center gap-2"><Heart size={18} className="text-brand-green" /> Daily Updates</div>
-              <div className="flex items-center gap-2"><Sparkles size={18} className="text-brand-green" /> Hygiene First</div>
             </div>
           </div>
           <div className="relative">
             <div className="relative z-10 rounded-[3rem] overflow-hidden shadow-2xl border-8 border-white transform rotate-2 hover:rotate-0 transition-transform duration-500">
               <img
-                src="/assets/dog-spitz.jpg"
-                alt="Happy Japanese Spitz at My Pawcation"
+                src="/assets/header-banner.png"
+                alt="My Pawcation Facilities"
                 className="w-full h-auto object-cover"
               />
             </div>
@@ -76,70 +74,41 @@ export const AboutPreview: React.FC = () => {
           </div>
           <div className="order-1 md:order-2">
             <SectionTitle
-              title="Trusted, Loving & Ethical"
+              title="A Home Away From Home"
               subtitle="About Us"
               centered={false}
             />
             <div className="space-y-6 text-lg text-stone-600 leading-relaxed">
               <p>
-                <span className="font-bold text-brand-dark">Our Mission:</span> To provide safe, home-style boarding where every pet is treated like family, not just a guest.
+                At <span className="font-bold text-brand-dark">My Pawcation</span>, we provide a calm, clean, and loving home environment for your pets while you’re away. No cages, no overcrowding — just attentive care, proper routines, and lots of love ❤️.
               </p>
               <p>
-                My Pawcation started because we couldn't find a place we trusted for our own dogs. We wanted a place without cages, without the smell of chemicals, and with genuine human connection.
+                We understand the worry of leaving your furkid behind. That's why we prioritize strict hygiene, separate zones for cats and dogs, and daily updates so you can enjoy your trip knowing they are happy.
               </p>
-              <p>
-                We are urban professionals just like you. We understand the guilt of traveling without them, which is why we over-communicate with photos and love.
-              </p>
-            </div>
-
-            <div className="grid grid-cols-2 gap-6 mt-8">
-              {[
-                { label: "Caregivers", value: "Verified" },
-                { label: "Happy Guests", value: "500+" },
-                { label: "Capacity Limit", value: "8 Dogs" },
-                { label: "Emergency Ready", value: "24/7" },
-              ].map((stat, i) => (
-                <div key={i} className="bg-brand-cream p-4 rounded-2xl border border-brand-sand">
-                  <div className="text-2xl font-display font-bold text-brand-dark">{stat.value}</div>
-                  <div className="text-xs font-bold text-brand-green uppercase tracking-wide">{stat.label}</div>
-                </div>
-              ))}
             </div>
           </div>
         </div>
       </div>
     </section>
-  )
-}
+  );
+};
 
-export const Services: React.FC = () => {
+export const WhyChooseUs: React.FC = () => {
   return (
-    <section id="services" className="py-24 bg-brand-cream relative scroll-mt-32">
+    <section id="why-us" className="py-24 bg-brand-cream scroll-mt-32">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <SectionTitle
-          title="Everything They Need"
-          subtitle="Our Services"
-        />
+        <SectionTitle title="Why Choose My Pawcation?" subtitle="Our Promise" />
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-          {SERVICES.map((service, idx) => (
-            <Card key={idx} className="h-full flex flex-col p-8 group hover:-translate-y-2 transition-transform duration-300 border border-transparent hover:border-brand-sand">
-              <div className="h-14 w-14 bg-brand-sand/50 rounded-2xl flex items-center justify-center text-brand-dark mb-6 group-hover:bg-brand-green group-hover:text-white transition-colors">
-                <service.icon size={28} />
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          {WHY_CHOOSE_US.map((item, index) => (
+            <Card key={index} className="p-8 h-full hover:-translate-y-2 transition-transform duration-300">
+              <div className="w-14 h-14 bg-brand-green/10 rounded-2xl flex items-center justify-center text-brand-green mb-6">
+                <item.icon size={32} />
               </div>
-              <h3 className="text-2xl font-display font-bold text-brand-dark mb-3">{service.title}</h3>
-              <p className="text-stone-600 mb-6 flex-grow text-sm leading-relaxed">{service.description}</p>
-              <ul className="space-y-2 mb-6">
-                {service.features.slice(0, 3).map((feature, i) => (
-                  <li key={i} className="flex items-start text-sm text-stone-500">
-                    <CheckCircle size={16} className="text-brand-green mr-2 mt-0.5 shrink-0" />
-                    {feature}
-                  </li>
-                ))}
-              </ul>
-              <div className="pt-4 border-t border-gray-100 flex items-center justify-between">
-                <span className="font-bold text-brand-dark">{service.price}</span>
-              </div>
+              <h3 className="text-xl font-bold text-brand-dark mb-3">{item.title}</h3>
+              <p className="text-stone-600 leading-relaxed">
+                {item.description}
+              </p>
             </Card>
           ))}
         </div>
@@ -148,48 +117,103 @@ export const Services: React.FC = () => {
   );
 };
 
-export const HowItWorks: React.FC = () => {
-  const steps = [
-    {
-      stage: "Before Boarding",
-      items: ["Submit online form / contact us", "Vaccination check", "Behavior assessment", "Meet & Greet"]
-    },
-    {
-      stage: "During Stay",
-      items: ["Daily feeding logs", "Playtime sessions", "Photo/Video updates", "Unlimited belly rubs"]
-    },
-    {
-      stage: "Going Home",
-      items: ["Exit health check", "Belongings packed", "Reunion cuddles", "Feedback request"]
-    },
-  ];
-
+export const DailyRoutine: React.FC = () => {
   return (
-    <section id="how-it-works" className="py-24 bg-white scroll-mt-32">
+    <section id="routine" className="py-24 bg-white scroll-mt-32">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <SectionTitle title="Simple & Transparent" subtitle="How It Works" />
-
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          {steps.map((step, i) => (
-            <div key={i} className="relative group">
-              <div className="bg-brand-cream rounded-3xl p-8 h-full border-2 border-transparent group-hover:border-brand-sand transition-all">
-                <div className="absolute -top-6 left-8 bg-brand-dark text-white text-xl font-bold w-12 h-12 rounded-full flex items-center justify-center shadow-lg">
-                  {i + 1}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+          <div>
+            <SectionTitle title="A Typical Day" subtitle="Daily Routine" centered={false} />
+            <p className="text-stone-600 mb-8 max-w-lg">
+              Routine provides comfort. While we adjust based on your pet's needs, health, and temperament, here is what a typical fun-filled day looks like.
+            </p>
+            <div className="relative border-l-4 border-brand-sand ml-4 space-y-12">
+              {DAILY_ROUTINE.map((item, index) => (
+                <div key={index} className="relative pl-8">
+                  <div className="absolute -left-[1.35rem] top-0 w-10 h-10 bg-white border-4 border-brand-green rounded-full flex items-center justify-center">
+                    <Clock size={16} className="text-brand-green" />
+                  </div>
+                  <h4 className="text-xl font-bold text-brand-dark mb-1">{item.time}</h4>
+                  <p className="text-stone-600 font-medium">{item.activity}</p>
                 </div>
-                <h3 className="mt-4 text-2xl font-display font-bold text-brand-dark mb-6">{step.stage}</h3>
-                <ul className="space-y-4">
-                  {step.items.map((item, idx) => (
-                    <li key={idx} className="flex items-center text-stone-600">
-                      <div className="w-2 h-2 rounded-full bg-brand-green mr-3"></div>
-                      {item}
-                    </li>
-                  ))}
-                </ul>
-              </div>
+              ))}
             </div>
-          ))}
+          </div>
+
+          <div className="bg-brand-brown p-8 lg:p-12 rounded-[3.5rem] relative overflow-hidden text-white">
+            <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full blur-3xl -mr-16 -mt-16"></div>
+
+            <SectionTitle title="Hygiene & Safety SOP" subtitle="Our Standards" centered={false} className="text-white" />
+
+            <ul className="space-y-4 relative z-10">
+              {HYGIENE_SOP.map((item, index) => (
+                <li key={index} className="flex items-start gap-3">
+                  <CheckCircle className="text-brand-accent shrink-0 mt-1" />
+                  <span className="text-lg text-brand-cream/90">{item}</span>
+                </li>
+              ))}
+            </ul>
+
+            <div className="mt-8 pt-8 border-t border-white/20">
+              <p className="font-bold text-brand-accent text-lg">Your pet’s safety and health always come first.</p>
+            </div>
+          </div>
         </div>
       </div>
     </section>
-  )
-}
+  );
+};
+
+export const HowItWorks: React.FC = () => {
+  return (
+    <section id="how-it-works" className="py-24 bg-brand-cream scroll-mt-32">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <SectionTitle title="Simple & Stress-Free" subtitle="How to Book" />
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mt-12 relative">
+          {/* Connecting Line (Desktop) */}
+          <div className="hidden md:block absolute top-[2.5rem] left-[16%] right-[16%] h-0.5 bg-brand-sand/30 -z-0"></div>
+
+          {/* Step 1 */}
+          <div className="text-center relative z-10">
+            <div className="w-20 h-20 mx-auto bg-white rounded-full flex items-center justify-center text-brand-dark font-bold text-2xl shadow-md border-4 border-brand-cream mb-6">
+              1
+            </div>
+            <h3 className="font-bold text-xl text-brand-dark mb-3">Contact Us</h3>
+            <p className="text-stone-600 leading-relaxed px-4">
+              Reach out via WhatsApp or Social Media to check availability.
+            </p>
+          </div>
+
+          {/* Step 2 */}
+          <div className="text-center relative z-10">
+            <div className="w-20 h-20 mx-auto bg-white rounded-full flex items-center justify-center text-brand-dark font-bold text-2xl shadow-md border-4 border-brand-cream mb-6">
+              2
+            </div>
+            <h3 className="font-bold text-xl text-brand-dark mb-3">Confirm Dates</h3>
+            <p className="text-stone-600 leading-relaxed px-4">
+              We'll confirm the slots for your requested dates.
+            </p>
+          </div>
+
+          {/* Step 3 */}
+          <div className="text-center relative z-10">
+            <div className="w-20 h-20 mx-auto bg-white rounded-full flex items-center justify-center text-brand-dark font-bold text-2xl shadow-md border-4 border-brand-cream mb-6">
+              3
+            </div>
+            <h3 className="font-bold text-xl text-brand-dark mb-3">Secure Slot</h3>
+            <p className="text-stone-600 leading-relaxed px-4">
+              Pay 50% deposit or full payment to lock in your booking.
+            </p>
+          </div>
+        </div>
+
+        <div className="mt-12 text-center">
+          <a href="https://wa.me/60173840723" target="_blank" rel="noopener noreferrer">
+            <Button variant="primary" size="lg">Contact to Book Now</Button>
+          </a>
+        </div>
+      </div>
+    </section>
+  );
+};
