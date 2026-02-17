@@ -1,23 +1,30 @@
-import { GoogleGenAI, Chat, GenerateContentResponse } from "@google/genai";
+import { GoogleGenerativeAI, ChatSession } from "@google/generative-ai";
 import { SYSTEM_INSTRUCTION } from "../constants";
 
-let chatInstance: Chat | null = null;
+let chatInstance: ChatSession | null = null;
+let genAI: GoogleGenerativeAI | null = null;
 
 const getChatInstance = () => {
     const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
 
     if (!apiKey) {
-        console.error("API Key is missing!");
-        // We will let the caller handle the error, or return a mock/error instance if needed
-        throw new Error("API Key is missing. Please set VITE_GEMINI_API_KEY in your .env or Vercel.");
+        throw new Error("API Key is missing. Please set VITE_GEMINI_API_KEY.");
+    }
+
+    if (!genAI) {
+        genAI = new GoogleGenerativeAI(apiKey);
     }
 
     if (!chatInstance) {
-        const ai = new GoogleGenAI({ apiKey: apiKey });
-        chatInstance = ai.chats.create({
-            model: 'gemini-1.5-flash',
-            config: {
-                systemInstruction: SYSTEM_INSTRUCTION,
+        const model = genAI.getGenerativeModel({
+            model: "gemini-1.5-flash",
+            systemInstruction: SYSTEM_INSTRUCTION,
+        });
+
+        chatInstance = model.startChat({
+            history: [],
+            generationConfig: {
+                maxOutputTokens: 1000,
                 temperature: 0.7,
             },
         });
@@ -29,33 +36,28 @@ export const sendMessageToGemini = async (
     message: string,
     onChunk: (text: string) => void
 ): Promise<string> => {
-    let chat;
-    try {
-        chat = getChatInstance();
-    } catch (e) {
-        // If we can't get the chat instance (e.g. no API key), throw immediately
-        throw e;
-    }
-
+    const chat = getChatInstance();
     let fullText = "";
 
     try {
-        const resultStream = await chat.sendMessageStream({ message });
+        const result = await chat.sendMessageStream(message);
 
-        for await (const chunk of resultStream) {
-            // The new @google/genai might return text differently or similar to the old.
-            // Based on docs, it returns 'text' property or similar.
-            // Let's assume the user's code structure is correct for the SDK they used.
-            // However, safely accessing text is better.
-            const c = chunk as GenerateContentResponse;
-            const textChunk = c.text || "";
-            if (textChunk) {
-                fullText += textChunk;
-                onChunk(fullText);
-            }
+        for await (const chunk of result.stream) {
+            const chunkText = chunk.text();
+            fullText += chunkText;
+            onChunk(fullText);
         }
-    } catch (error) {
-        console.error("Error sending message to Gemini:", error);
+
+    } catch (error: any) {
+        console.error("Gemini API Error:", error);
+
+        // Handle specific error codes if possible
+        if (error.message?.includes("429")) {
+            throw new Error("Quota exceeded. Please try again in 1 minute.");
+        } else if (error.message?.includes("404")) {
+            throw new Error("Model not found. Please contact support.");
+        }
+
         throw error;
     }
 
