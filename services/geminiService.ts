@@ -15,7 +15,7 @@ const getChatInstance = () => {
     if (!chatInstance) {
         const ai = new GoogleGenAI({ apiKey: apiKey });
         chatInstance = ai.chats.create({
-            model: 'gemini-1.5-flash', // Switched to 1.5-flash as 3-flash is likely invalid
+            model: 'gemini-2.0-flash',
             config: {
                 systemInstruction: SYSTEM_INSTRUCTION,
                 temperature: 0.7,
