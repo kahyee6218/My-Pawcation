@@ -15,7 +15,7 @@ const getChatInstance = () => {
     if (!chatInstance) {
         const ai = new GoogleGenAI({ apiKey: apiKey });
         chatInstance = ai.chats.create({
-            model: 'gemini-2.0-flash',
+            model: 'gemini-1.5-flash',
             config: {
                 systemInstruction: SYSTEM_INSTRUCTION,
                 temperature: 0.7,
