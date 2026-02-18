@@ -17,9 +17,9 @@ const getChatInstance = () => {
 
     if (!chatInstance) {
         const model = genAI.getGenerativeModel({
-            model: "gemini-1.5-flash",
+            model: "gemini-1.5-flash-latest",
             systemInstruction: SYSTEM_INSTRUCTION,
-        }, { apiVersion: "v1" });
+        });
 
         chatInstance = model.startChat({
             history: [],
