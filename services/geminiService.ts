@@ -16,13 +16,23 @@ const getChatInstance = () => {
     }
 
     if (!chatInstance) {
+        // Using gemini-1.5-flash which is widely available and stable
         const model = genAI.getGenerativeModel({
-            model: "gemini-1.5-flash-latest",
-            systemInstruction: SYSTEM_INSTRUCTION,
+            model: "gemini-1.5-flash",
         });
 
+        // We use the history to provide the system instruction to bypass potential v1/v1beta issues with the systemInstruction field
         chatInstance = model.startChat({
-            history: [],
+            history: [
+                {
+                    role: "user",
+                    parts: [{ text: "SYSTEM INSTRUCTION:\n" + SYSTEM_INSTRUCTION + "\n\nPlease confirm you understand your role." }],
+                },
+                {
+                    role: "model",
+                    parts: [{ text: "I understand. I am PawBot, the AI assistant for My Pawcation. I'm ready to help our customers with boarding rates, booking, and any other questions about our services in Sri Petaling." }],
+                }
+            ],
             generationConfig: {
                 maxOutputTokens: 1000,
                 temperature: 0.7,
@@ -51,7 +61,6 @@ export const sendMessageToGemini = async (
     } catch (error: any) {
         console.error("Gemini API Error:", error);
 
-        // Handle specific error codes if possible
         if (error.message?.includes("429")) {
             throw new Error("Quota exceeded. Please try again in 1 minute.");
         } else if (error.message?.includes("404")) {
