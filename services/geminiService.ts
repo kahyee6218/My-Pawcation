@@ -18,7 +18,7 @@ const getChatInstance = () => {
     if (!chatInstance) {
         // Using gemini-1.5-flash which is widely available and stable
         const model = genAI.getGenerativeModel({
-            model: "gemini-1.5-flash-latest",
+            model: "gemini-flash-latest",
         }, { apiVersion: "v1beta" });
 
         // We use the history to provide the system instruction to bypass potential v1/v1beta issues with the systemInstruction field
