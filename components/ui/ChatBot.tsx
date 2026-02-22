@@ -8,7 +8,7 @@ function ChatBot() {
      * My Pawcation AI Chat App URL
      * GitHub Source: https://github.com/kahyee6218/Web-Chat
      */
-    const BOT_URL = "https://ais-dev-bksg2jndx3utew45ysu2va-26445144781.asia-east1.run.app";
+    const BOT_URL = "https://ais-pre-bksg2jndx3utew45ysu2va-26445144781.asia-east1.run.app";
 
     return (
         <div className="fixed bottom-4 right-4 z-[9999] flex flex-col items-end gap-4 pointer-events-auto font-sans">
