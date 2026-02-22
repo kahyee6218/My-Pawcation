@@ -10,5 +10,5 @@ export interface Message {
 export interface QuickAction {
     label: string;
     query: string;
-    icon: React.ReactNode;
+    icon?: React.ReactNode;
 }
