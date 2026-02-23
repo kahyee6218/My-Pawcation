@@ -1,37 +1,58 @@
-import { GoogleGenerativeAI } from '@google/generative-ai';
+import { GoogleGenerativeAI, ChatSession } from '@google/generative-ai';
 import { SYSTEM_INSTRUCTIONS } from '../constants';
 
 // Replace with your actual API Key or set VITE_GEMINI_API_KEY in .env
-const API_KEY = import.meta.env.VITE_GEMINI_API_KEY || '';
+const API_KEY = import.meta.env.VITE_GEMINI_API_KEY || import.meta.env.API_KEY || '';
 const genAI = new GoogleGenerativeAI(API_KEY);
 
-export const sendMessage = async (message: string, history: any[] = []) => {
+let chatSession: ChatSession | null = null;
+
+export const resetChat = () => {
+    chatSession = null;
+};
+
+export const sendMessageToGemini = async (
+    message: string,
+    onProgress?: (text: string) => void
+) => {
     if (!API_KEY) {
         console.warn('Gemini API Key is missing. Please add VITE_GEMINI_API_KEY to your .env file.');
-        return "I'm sorry, but my AI engine is currently disconnected. Please contact My Pawcation directly via WhatsApp for assistance!";
+        throw new Error("Configuration Error: API Key is missing or invalid.");
     }
 
     try {
-        const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+        if (!chatSession) {
+            const model = genAI.getGenerativeModel({
+                model: "gemini-2.0-flash",
+                systemInstruction: SYSTEM_INSTRUCTIONS,
+            });
 
-        // Check if user wants to reset the chat
-        if (message.toLowerCase() === 'reset chat') {
-            return "I've reset our conversation history. How else can I help you today?";
+            chatSession = model.startChat({
+                history: [],
+                generationConfig: {
+                    maxOutputTokens: 1000,
+                    temperature: 0.7,
+                },
+            });
         }
 
-        const chat = model.startChat({
-            history: history,
-            generationConfig: {
-                maxOutputTokens: 1000,
-            },
-        });
+        const result = await chatSession.sendMessageStream(message);
 
-        const prompt = `${SYSTEM_INSTRUCTIONS}\n\nUser Question: ${message}`;
-        const result = await chat.sendMessage(prompt);
-        const response = await result.response;
-        return response.text();
+        let fullResponse = '';
+        for await (const chunk of result.stream) {
+            const chunkText = chunk.text();
+            fullResponse += chunkText;
+            if (onProgress) {
+                onProgress(fullResponse);
+            }
+        }
+
     } catch (error) {
         console.error('Gemini API Error:', error);
         throw error;
     }
+};
+
+export const sendMessage = async (message: string, history: any[] = []) => {
+    return "Legacy function disabled.";
 };

@@ -1,24 +1,26 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Send, Bot, User, Loader2, X, MessageSquare, RefreshCw, ChevronDown } from 'lucide-react';
+import { Send, PawPrint, X, RefreshCcw, ChevronDown, MessageCircle } from 'lucide-react';
 import ChatMessage from './ChatMessage';
 import QuickActions from './QuickActions';
-import { sendMessage } from '../../services/geminiService';
+import { sendMessageToGemini, resetChat } from '../../services/geminiService';
+import { Message, ChatState } from '../../types/chat';
 import { QUICK_ACTIONS } from '../../constants';
-import { Message } from '../../types/chat';
 
 function ChatBot() {
-    const [isOpen, setIsOpen] = useState(false);
     const [messages, setMessages] = useState<Message[]>([
         {
-            id: '1',
+            id: 'welcome',
             role: 'model',
-            content: "Hi there! 🐾 I'm your My Pawcation Assistant. How can I help you and your furry friend today?",
-            timestamp: new Date(),
-        },
+            content: "Hi there! 🐾 I'm the AI assistant for **My Pawcation**. I can help you with boarding rates, booking info, and answering questions about our cage-free home-style care. How can I help you today?",
+            timestamp: new Date()
+        }
     ]);
-    const [input, setInput] = useState('');
-    const [isLoading, setIsLoading] = useState(false);
+    const [inputText, setInputText] = useState('');
+    const [chatState, setChatState] = useState<ChatState>(ChatState.IDLE);
+    const [isOpen, setIsOpen] = useState(false);
+
     const messagesEndRef = useRef<HTMLDivElement>(null);
+    const inputRef = useRef<HTMLInputElement>(null);
 
     const scrollToBottom = () => {
         messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -27,184 +29,228 @@ function ChatBot() {
     useEffect(() => {
         if (isOpen) {
             scrollToBottom();
+            setTimeout(() => inputRef.current?.focus(), 100);
         }
     }, [messages, isOpen]);
 
-    const handleSend = async (content: string) => {
-        if (!content.trim() || isLoading) return;
+    const handleSendMessage = async (text: string = inputText) => {
+        if (!text.trim() || chatState === ChatState.LOADING || chatState === ChatState.STREAMING) return;
 
         const userMessage: Message = {
             id: Date.now().toString(),
             role: 'user',
-            content,
-            timestamp: new Date(),
+            content: text,
+            timestamp: new Date()
         };
 
-        setMessages((prev) => [...prev, userMessage]);
-        setInput('');
-        setIsLoading(true);
+        setMessages(prev => [...prev, userMessage]);
+        setInputText('');
+        setChatState(ChatState.LOADING);
+
+        const botMessageId = (Date.now() + 1).toString();
+        const initialBotMessage: Message = {
+            id: botMessageId,
+            role: 'model',
+            content: '', // Start empty for streaming
+            timestamp: new Date()
+        };
+        setMessages(prev => [...prev, initialBotMessage]);
 
         try {
-            const chatHistory = messages.map(m => ({
-                role: m.role,
-                parts: [{ text: m.content }]
-            }));
+            if (sendMessageToGemini) {
+                await sendMessageToGemini(text, (streamedText) => {
+                    setChatState(ChatState.STREAMING);
+                    setMessages(prev => prev.map(msg =>
+                        msg.id === botMessageId ? { ...msg, content: streamedText } : msg
+                    ));
+                });
+            }
+            setChatState(ChatState.IDLE);
+        } catch (error: any) {
+            console.error(error);
 
-            const response = await sendMessage(content, chatHistory);
+            let errorMessage = "⚠️ Sorry, I'm having trouble connecting right now. Please try again later or contact us directly on WhatsApp.";
+            const status = error.status || error.response?.status;
 
-            const botMessage: Message = {
-                id: (Date.now() + 1).toString(),
-                role: 'model',
-                content: response,
-                timestamp: new Date(),
-            };
+            if (error.message?.includes("API Key")) {
+                errorMessage = "⚠️ Configuration Error: API Key is missing or invalid.";
+            } else if (error.message?.includes("Failed to fetch") || error.message?.includes("Network")) {
+                errorMessage = "⚠️ Network Error: Please check your internet connection.";
+            } else if (status === 503) {
+                errorMessage = "⚠️ Service temporarily unavailable. Please try again in a moment.";
+            } else if (status === 429) {
+                errorMessage = "⚠️ High Traffic: You've hit the rate limit for the free tier. Please wait a minute and try again.";
+            } else if (error.message?.includes("403") || status === 403 || error.message?.includes("permission denied")) {
+                errorMessage = `⚠️ Access Denied. If you have API Key restrictions enabled, you must add this domain to your allowed list: \n\n${window.location.origin}`;
+            } else if (error.message) {
+                errorMessage = `⚠️ Error: ${error.message}`;
+            }
 
-            setMessages((prev) => [...prev, botMessage]);
-        } catch (error) {
-            console.error('Error sending message:', error);
-            const errorMessage: Message = {
-                id: (Date.now() + 1).toString(),
-                role: 'model',
-                content: 'Sorry, I encountered an error. Please try again or contact us via WhatsApp!',
-                timestamp: new Date(),
-            };
-            setMessages((prev) => [...prev, errorMessage]);
-        } finally {
-            setIsLoading(false);
+            setMessages(prev => prev.map(msg =>
+                msg.id === botMessageId ? { ...msg, content: errorMessage } : msg
+            ));
+            setChatState(ChatState.ERROR);
         }
     };
 
-    const resetChat = () => {
-        setMessages([
-            {
-                id: Date.now().toString(),
-                role: 'model',
-                content: "I've reset our conversation. How else can I help you today? 🐾",
-                timestamp: new Date(),
-            },
-        ]);
+    const handleQuickAction = (actionQuery: string) => {
+        handleSendMessage(actionQuery);
+    };
+
+    const handleKeyPress = (e: React.KeyboardEvent) => {
+        if (e.key === 'Enter' && !e.shiftKey) {
+            e.preventDefault();
+            handleSendMessage();
+        }
+    };
+
+    const handleReset = () => {
+        setMessages([messages[0]]);
+        if (resetChat) resetChat();
+        setTimeout(() => inputRef.current?.focus(), 100);
     };
 
     return (
         <div className="fixed bottom-4 right-4 z-[9999] flex flex-col items-end gap-4 pointer-events-auto font-sans">
+
             {/* Chat Window Container */}
             <div
                 id="chat-window"
                 role="dialog"
                 aria-label="My Pawcation AI Chat Assistant"
+                aria-modal="false"
                 className={`
-                    transition-all duration-300 ease-in-out transform origin-bottom-right
-                    bg-[#FAF7F2] rounded-2xl shadow-2xl overflow-hidden border border-stone-200
-                    flex flex-col
-                    ${isOpen ? 'scale-100 opacity-100 translate-y-0 visible' : 'scale-95 opacity-0 translate-y-10 invisible pointer-events-none'}
-                `}
+          transition-all duration-300 ease-in-out transform origin-bottom-right
+          bg-white rounded-2xl shadow-2xl overflow-hidden border border-stone-200
+          flex flex-col
+          ${isOpen ? 'scale-100 opacity-100 translate-y-0 visible' : 'scale-95 opacity-0 translate-y-10 invisible pointer-events-none'}
+        `}
                 style={{
-                    width: 'min(400px, calc(100vw - 32px))',
-                    height: 'min(650px, calc(100vh - 100px))',
+                    width: 'min(380px, calc(100vw - 32px))',
+                    height: 'min(600px, calc(100vh - 100px))',
                 }}
             >
-                {/* Header */}
-                <div className="bg-[#8B5E3C] p-3 flex items-center justify-between text-white shrink-0 shadow-md">
-                    <div className="flex items-center gap-2">
-                        <div className="bg-white/20 p-1.5 rounded-lg border border-white/10">
-                            <Bot size={20} />
+                {/* Header - Brown Theme */}
+                <div className="bg-[#8B5E3C] p-4 flex items-center justify-between text-white shadow-sm shrink-0">
+                    <div className="flex items-center gap-3">
+                        <div className="w-8 h-8 bg-white/20 rounded-full flex items-center justify-center backdrop-blur-sm">
+                            <PawPrint size={18} className="text-white" aria-hidden="true" />
                         </div>
                         <div>
-                            <h1 className="font-bold text-sm tracking-tight text-stone-100">My Pawcation</h1>
-                            <div className="flex items-center gap-1">
-                                <span className="w-1.5 h-1.5 bg-green-400 rounded-full animate-pulse shadow-[0_0_8px_rgba(74,222,128,0.5)]"></span>
-                                <span className="text-[10px] text-stone-300 font-medium">AI Assistant Active</span>
+                            <h2 className="font-bold text-sm leading-tight">My Pawcation</h2>
+                            <div className="flex items-center gap-1.5 opacity-90" role="status" aria-label="Status: Online">
+                                <span className="w-1.5 h-1.5 bg-green-400 rounded-full"></span>
+                                <span className="text-[10px] font-medium">Online</span>
                             </div>
                         </div>
                     </div>
                     <div className="flex items-center gap-1">
                         <button
-                            onClick={resetChat}
-                            className="p-1.5 hover:bg-white/10 rounded-lg transition-colors text-white"
+                            onClick={handleReset}
+                            className="p-2 hover:bg-white/10 rounded-full transition-colors text-white/80 hover:text-white focus:outline-none focus:ring-2 focus:ring-white/50"
                             title="Reset Chat"
+                            aria-label="Reset Chat"
                         >
-                            <RefreshCw size={16} />
+                            <RefreshCcw size={16} />
                         </button>
                         <button
                             onClick={() => setIsOpen(false)}
-                            className="p-1.5 hover:bg-white/10 rounded-lg transition-colors text-white focus:outline-none"
+                            className="p-2 hover:bg-white/10 rounded-full transition-colors text-white/80 hover:text-white focus:outline-none focus:ring-2 focus:ring-white/50"
                             title="Close Chat"
+                            aria-label="Close Chat"
                         >
-                            <X size={18} />
+                            <X size={20} />
                         </button>
                     </div>
                 </div>
 
-                {/* Message Container */}
-                <div className="flex-1 overflow-y-auto p-4 space-y-4 scroll-smooth bg-stone-50/50">
-                    {messages.map((message) => (
-                        <ChatMessage key={message.id} message={message} />
-                    ))}
+                {/* Messages Area - Stone/Neutral Background */}
+                <div
+                    className="flex-1 overflow-y-auto bg-stone-50 p-4 scrollbar-hide"
+                    role="log"
+                    aria-live="polite"
+                    aria-atomic="false"
+                >
+                    <div className="space-y-4">
+                        {messages.map((msg) => (
+                            <ChatMessage key={msg.id} message={msg} />
+                        ))}
 
-                    {isLoading && (
-                        <div className="flex justify-start">
-                            <div className="bg-white px-4 py-2 rounded-2xl shadow-sm border border-stone-100 flex items-center gap-2">
-                                <Loader2 size={14} className="animate-spin text-[#8B5E3C]" />
-                                <span className="text-xs text-stone-400 font-medium italic">Thinking about pets...</span>
+                        {/* Typing Indicator */}
+                        {chatState === ChatState.LOADING && (
+                            <div className="flex justify-start" role="status" aria-label="Agent is typing">
+                                <div className="flex items-center gap-1.5 bg-white px-3 py-2.5 rounded-2xl rounded-tl-none border border-stone-100 shadow-sm">
+                                    <span className="w-1.5 h-1.5 bg-[#8B5E3C] rounded-full animate-bounce"></span>
+                                    <span className="w-1.5 h-1.5 bg-[#8B5E3C] rounded-full animate-bounce delay-100"></span>
+                                    <span className="w-1.5 h-1.5 bg-[#8B5E3C] rounded-full animate-bounce delay-200"></span>
+                                </div>
                             </div>
+                        )}
+                        <div ref={messagesEndRef} />
+                    </div>
+                </div>
+
+                {/* Input Area */}
+                <div className="bg-white border-t border-stone-100 shrink-0">
+                    {/* Quick Actions Scroll Area */}
+                    {messages.length <= 1 && (
+                        <div className="pt-3 pb-1 px-4">
+                            <QuickActions actions={QUICK_ACTIONS} onActionClick={handleQuickAction} />
                         </div>
                     )}
-                    <div ref={messagesEndRef} />
-                </div>
 
-                {/* Quick Actions (only show if few messages) */}
-                {messages.length <= 1 && !isLoading && (
-                    <div className="px-4 pb-2">
-                        <QuickActions actions={QUICK_ACTIONS} onActionClick={handleSend} />
-                    </div>
-                )}
-
-                {/* Footer/Input */}
-                <div className="p-4 bg-white border-t border-stone-100 shrink-0">
-                    <form
-                        onSubmit={(e) => {
-                            e.preventDefault();
-                            handleSend(input);
-                        }}
-                        className="flex items-center gap-2"
-                    >
-                        <input
-                            type="text"
-                            value={input}
-                            onChange={(e) => setInput(e.target.value)}
-                            placeholder="Ask about boarding or book a stay..."
-                            className="flex-1 px-4 py-2.5 bg-stone-100 text-stone-800 border-none rounded-xl text-sm focus:ring-2 focus:ring-[#8B5E3C]/20 transition-all placeholder:text-stone-400"
-                        />
-                        <button
-                            type="submit"
-                            disabled={!input.trim() || isLoading}
-                            className="p-2.5 bg-[#8B5E3C] text-white rounded-xl hover:bg-[#724a2e] disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-md active:scale-95"
-                        >
-                            <Send size={18} />
-                        </button>
-                    </form>
-                    <div className="mt-2 text-[10px] text-center text-stone-400 italic">
-                        Responses are generated by AI. For urgent help, please use WhatsApp.
+                    <div className="p-3 pt-1">
+                        <div className="relative flex items-center">
+                            <input
+                                ref={inputRef}
+                                type="text"
+                                value={inputText}
+                                onChange={(e) => setInputText(e.target.value)}
+                                onKeyDown={handleKeyPress}
+                                placeholder="Type your message..."
+                                disabled={chatState === ChatState.LOADING || chatState === ChatState.STREAMING}
+                                aria-label="Type your message"
+                                className="w-full bg-stone-50 border border-stone-200 text-stone-800 text-sm rounded-full focus:ring-2 focus:ring-[#8B5E3C] focus:border-[#8B5E3C] block pl-4 pr-10 py-2.5 outline-none transition-all disabled:opacity-60 placeholder:text-stone-400"
+                            />
+                            <button
+                                onClick={() => handleSendMessage()}
+                                disabled={!inputText.trim() || chatState === ChatState.LOADING || chatState === ChatState.STREAMING}
+                                aria-label="Send message"
+                                className="absolute right-1.5 p-1.5 bg-[#8B5E3C] text-white rounded-full hover:bg-[#6F4E37] disabled:opacity-50 disabled:cursor-not-allowed transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#8B5E3C]"
+                            >
+                                <Send size={16} />
+                            </button>
+                        </div>
+                        <div className="text-center mt-2">
+                            <a href="https://wa.me/60173840723" target="_blank" rel="noreferrer" className="text-[10px] text-stone-400 hover:text-[#8B5E3C] transition-colors focus:outline-none focus:underline">
+                                Need human help? WhatsApp Us
+                            </a>
+                        </div>
                     </div>
                 </div>
             </div>
 
-            {/* Launcher Button */}
+            {/* Launcher Button - Brown Theme */}
             <button
                 onClick={() => setIsOpen(!isOpen)}
                 aria-label={isOpen ? "Close chat" : "Open chat assistant"}
                 aria-expanded={isOpen}
+                aria-controls="chat-window"
                 className={`
-                    flex items-center justify-center
-                    w-14 h-14 rounded-full shadow-lg 
-                    bg-[#8B5E3C] hover:bg-[#6F4E37] active:bg-[#5D4037]
-                    text-white transition-all duration-300 transform hover:scale-105 active:scale-95
-                    focus:outline-none focus:ring-4 focus:ring-[#8B5E3C]/30
-                    ${isOpen ? 'rotate-90' : 'rotate-0'}
-                `}
+          flex items-center justify-center
+          w-14 h-14 rounded-full shadow-lg 
+          bg-[#8B5E3C] hover:bg-[#6F4E37] active:bg-[#5D4037]
+          text-white transition-all duration-300 transform hover:scale-105 active:scale-95
+          focus:outline-none focus:ring-4 focus:ring-[#8B5E3C]/30
+          ${isOpen ? 'rotate-90' : 'rotate-0'}
+        `}
             >
-                {isOpen ? <ChevronDown size={28} /> : <MessageSquare size={28} className="fill-current" />}
+                {isOpen ? <ChevronDown size={28} aria-hidden="true" /> : <MessageCircle size={28} className="fill-current" aria-hidden="true" />}
+                {!isOpen && (
+                    <span className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 border-2 border-white rounded-full"></span>
+                )}
             </button>
+
         </div>
     );
 }

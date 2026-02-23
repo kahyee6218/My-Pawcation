@@ -12,3 +12,10 @@ export interface QuickAction {
     query: string;
     icon?: React.ReactNode;
 }
+
+export enum ChatState {
+    IDLE,
+    LOADING,
+    STREAMING,
+    ERROR
+}
