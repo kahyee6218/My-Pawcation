@@ -42,20 +42,11 @@ export const Navbar: React.FC = () => {
                 key={item.label}
                 href={item.href}
                 className="font-medium text-brand-dark hover:text-brand-green transition-colors"
-                onClick={(e) => {
-                  e.preventDefault();
-                  const element = document.querySelector(item.href);
-                  element?.scrollIntoView({ behavior: 'smooth' });
-                }}
               >
                 {item.label}
               </a>
             ))}
-            <a href="#booking" onClick={(e) => {
-              e.preventDefault();
-              const element = document.querySelector('#booking');
-              element?.scrollIntoView({ behavior: 'smooth' });
-            }}>
+            <a href="#booking">
               <Button size="sm" variant="primary">Book Now</Button>
             </a>
           </div>
