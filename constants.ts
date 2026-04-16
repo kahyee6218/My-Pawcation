@@ -93,8 +93,8 @@ export const PRICING_DATA = {
     ],
     grooming: [
       { size: "Small", normal: "RM45", peak: "RM55" },
-      { size: "Medium", normal: "RM55", peak: "RM65" },
-      { size: "Large", normal: "RM65", peak: "RM75" }
+      { size: "Medium", normal: "RM65", peak: "RM75" },
+      { size: "Large", normal: "RM75", peak: "RM85" }
     ]
   },
   cats_rabbits: {
@@ -202,7 +202,7 @@ Monthly packages:
 - Dog Small: RM850 | Medium: RM1,250 | Large: RM1,650
 - Cat Standard: RM650 | Long-hair: RM850
 
-Add-ons: Grooming (bath+nail) Small RM40 / Med-Large RM60 | Pick-up & drop-off RM20–40 | 1-on-1 premium care +RM30/day
+Add-ons: Grooming (bath+nail) Small RM45-55 / Medium RM65-75 / Large RM75-85 | Pick-up & drop-off RM20–40 | 1-on-1 premium care +RM30/day
 
 Policies (keep brief):
 - Fully vaccinated pets only (proof required)
