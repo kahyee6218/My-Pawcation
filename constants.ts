@@ -77,9 +77,9 @@ export const HYGIENE_SOP = [
 export const PRICING_DATA = {
   dogs: {
     daycare: [
-      { size: "Small (≤7kg)", normal: "RM20", peak: "RM30" },
-      { size: "Medium (8–15kg)", normal: "RM30", peak: "RM40" },
-      { size: "Large (>15kg)", normal: "RM40", peak: "RM50" }
+      { size: "Small (≤7kg)", normal: "RM30", peak: "RM40" },
+      { size: "Medium (8–15kg)", normal: "RM40", peak: "RM50" },
+      { size: "Large (>15kg)", normal: "RM50", peak: "RM60" }
     ],
     boarding: [
       { size: "Small (≤7kg)", normal: "RM40", peak: "RM50" },
@@ -195,7 +195,7 @@ Boarding (per day):
 - Peak season (public holidays): +RM10
 
 Daycare (per day):
-- Dog Small: RM20–30 | Medium: RM30–40 | Large: RM40–50
+- Dog Small: RM30–40 | Medium: RM40–50 | Large: RM50–60
 - Cat Standard: RM15–25 | Long-hair: RM20–25
 
 Monthly packages:
