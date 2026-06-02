@@ -105,28 +105,27 @@ function formatPetLabel(pet: PetInfo): string {
   if (pet.breed) parts.push(pet.breed);
   if (pet.size) parts.push(pet.size);
   if (pet.weight) parts.push(pet.weight);
-  if (pet.notes) parts.push(`📝 ${pet.notes}`);
-  return parts.join(' · ');
+  if (pet.notes) parts.push(`Notes: ${pet.notes}`);
+  return parts.join(' | ');
 }
 
 function buildWhatsAppLink(summary: BookingSummary): string {
   const lines: string[] = [];
 
-  lines.push(`🐾 New Booking Enquiry – My Pawcation`);
+  lines.push(`New Booking Enquiry - My Pawcation`);
   lines.push(``);
-  lines.push(`👤 Customer: ${summary.customerName || '(not provided)'}`);
-  lines.push(`📞 Phone: ${summary.customerPhone || '(not provided)'}`);
+  lines.push(`Customer: ${summary.customerName || '(not provided)'}`);
+  lines.push(`Phone: ${summary.customerPhone || '(not provided)'}`);
   lines.push(``);
-  lines.push(`📋 Service: ${summary.serviceType === 'boarding' ? '🏠 Boarding' : '☀️ Daycare'}`);
-  lines.push(`📅 Check-in: ${summary.checkIn || 'TBC'}`);
-  lines.push(`📅 Check-out: ${summary.checkOut || 'TBC'}`);
+  lines.push(`Service: ${summary.serviceType === 'boarding' ? 'Boarding' : 'Daycare'}`);
+  lines.push(`Check-in: ${summary.checkIn || 'TBC'}`);
+  lines.push(`Check-out: ${summary.checkOut || 'TBC'}`);
   lines.push(``);
 
   const validPets = summary.pets.filter(pet => pet.name || pet.type || pet.breed || pet.size || pet.weight || pet.notes);
   if (validPets.length > 0) {
-    lines.push(`🐶🐱 Pets (${validPets.length}):`);
+    lines.push(`Pets (${validPets.length}):`);
     validPets.forEach((pet, i) => {
-      // Ensure we never pass an empty pet label
       const label = formatPetLabel(pet);
       if (label.trim().length > 0) {
         lines.push(`${i + 1}. ${label}`);
@@ -136,10 +135,10 @@ function buildWhatsAppLink(summary: BookingSummary): string {
   }
 
   const addons: string[] = [];
-  if (summary.addGrooming) addons.push('✂️ Grooming');
-  if (summary.addTransport) addons.push('🚗 Transport');
+  if (summary.addGrooming) addons.push('Grooming');
+  if (summary.addTransport) addons.push('Transport');
   if (addons.length > 0) {
-    lines.push(`🔧 Add-ons: ${addons.join(', ')}`);
+    lines.push(`Add-ons: ${addons.join(', ')}`);
     lines.push(``);
   }
 
@@ -490,32 +489,32 @@ export function processStep(userInput: string, state: FlowState): {
 function formatSummary(booking: BookingSummary): string {
   const lines: string[] = [];
 
-  lines.push(`📋 Booking Summary`);
+  lines.push(`Booking Summary`);
   lines.push(``);
-  lines.push(`🐾 Service: ${booking.serviceType === 'boarding' ? '🏠 Boarding' : '☀️ Daycare'}`);
-  lines.push(`📅 Check-in: ${booking.checkIn || 'TBC'}`);
-  lines.push(`📅 Check-out: ${booking.checkOut || 'TBC'}`);
+  lines.push(`Service: ${booking.serviceType === 'boarding' ? 'Boarding' : 'Daycare'}`);
+  lines.push(`Check-in: ${booking.checkIn || 'TBC'}`);
+  lines.push(`Check-out: ${booking.checkOut || 'TBC'}`);
   lines.push(``);
 
   const validPets = booking.pets.filter(pet => pet.name || pet.type || pet.breed || pet.size || pet.weight || pet.notes);
   if (validPets.length > 0) {
     validPets.forEach((pet, i) => {
       const details = formatPetLabel(pet);
-      lines.push(`🐶🐱 Pet ${i + 1}: ${details}`);
+      lines.push(`Pet ${i + 1}: ${details}`);
     });
     lines.push(``);
   }
 
   const addons: string[] = [];
-  if (booking.addGrooming) addons.push('✂️ Grooming');
-  if (booking.addTransport) addons.push('🚗 Transport');
+  if (booking.addGrooming) addons.push('Grooming');
+  if (booking.addTransport) addons.push('Transport');
   if (addons.length > 0) {
-    lines.push(`🔧 Add-ons: ${addons.join(', ')}`);
+    lines.push(`Add-ons: ${addons.join(', ')}`);
     lines.push(``);
   }
 
-  lines.push(`👤 Customer: ${booking.customerName || 'TBC'}`);
-  lines.push(`📞 Phone: ${booking.customerPhone || 'TBC'}`);
+  lines.push(`Customer: ${booking.customerName || 'TBC'}`);
+  lines.push(`Phone: ${booking.customerPhone || 'TBC'}`);
 
   return lines.join('\n');
 }
