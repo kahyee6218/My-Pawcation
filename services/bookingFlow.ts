@@ -93,7 +93,9 @@ const WHATSAPP_NUMBER = '60173840723';
 function normalizeWeight(input: string): string {
   const match = input.match(/\d+(?:\.\d+)?/);
   if (!match) return '';
-  return `${match[0]}kg`;
+  // keep only the first number to avoid "12kg 20kg 30kg" -> "12kg"
+  const first = match[0];
+  return `${first}kg`;
 }
 
 function formatPetLabel(pet: PetInfo): string {
@@ -124,7 +126,11 @@ function buildWhatsAppLink(summary: BookingSummary): string {
   if (validPets.length > 0) {
     lines.push(`🐶🐱 Pets (${validPets.length}):`);
     validPets.forEach((pet, i) => {
-      lines.push(`${i + 1}. ${formatPetLabel(pet)}`);
+      // Ensure we never pass an empty pet label
+      const label = formatPetLabel(pet);
+      if (label.trim().length > 0) {
+        lines.push(`${i + 1}. ${label}`);
+      }
     });
     lines.push(``);
   }
