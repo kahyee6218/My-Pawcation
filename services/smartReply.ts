@@ -207,6 +207,11 @@ ${WHATSAPP}`,
 
   // ── GREETINGS ──
   {
+    keywords: ['check-in', 'check in', 'checkin', 'checkout', 'check-out', 'check out', 'date', 'dates', 'when', 'schedule'],
+    reply: `📅 For availability, please tell us your **check-in** and **check-out** dates.\n\nThen we can confirm your slot right away!`,
+    followUp: 'What dates are you planning? 🐾'
+  },
+  {
     keywords: ['hello', 'hi', 'hey', 'morning', 'afternoon', 'evening', 'good'],
     reply: `Hey there! 🐾 Welcome to **My Pawcation** — cage-free home-style pet boarding in KL!
 
