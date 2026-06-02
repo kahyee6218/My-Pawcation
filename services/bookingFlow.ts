@@ -457,9 +457,8 @@ export function processStep(userInput: string, state: FlowState): {
       const waLink = buildWhatsAppLink(next.booking);
       return {
         nextState: next,
-        reply: `✅ Booking details are ready!\n\n${formatSummary(next.booking)}\n\nTap the button below to send this to WhatsApp.`,
+        reply: `✅ Booking details are ready!\n\n${formatSummary(next.booking)}\n\n[💬 Send to WhatsApp →](${waLink})`,
         complete: true,
-        // store WhatsApp link in summary step via nextState.booking only
       };
     }
 
