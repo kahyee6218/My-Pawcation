@@ -8,14 +8,14 @@ import { getInstantReply, getFallbackReply } from '../../services/smartReply';
 import { Message, ChatState } from '../../types/chat';
 import { QUICK_ACTIONS } from '../../constants';
 
-const WHATSAPP_LINK = 'https://wa.me/60173840723?text=Hi%20My%20Pawcation!%20I%20have%20a%20question';
+const WHATSAPP_BTN = '[💬 WhatsApp Us](https://wa.me/60173840723?text=Hi%20My%20Pawcation!%20I%20have%20a%20question)';
 
 function ChatBot() {
     const [messages, setMessages] = useState<Message[]>([
         {
             id: 'welcome',
             role: 'model',
-            content: `Hi there! 🐾 I'm the AI assistant for **My Pawcation**. I can help you with boarding rates, booking info, and answering questions about our cage-free home-style care. How can I help you today?\n\n💡 *Prefer to talk to a human?* [Chat with us on WhatsApp →](${WHATSAPP_LINK})`,
+            content: `Hi there! 🐾 I'm the AI assistant for **My Pawcation**. I can help you with boarding rates, booking info, and answering questions about our cage-free home-style care. How can I help you today?\n\n${WHATSAPP_BTN}`,
             timestamp: new Date()
         }
     ]);
@@ -103,7 +103,7 @@ function ChatBot() {
             if (isKeyError) {
                 friendlyMsg = getFallbackReply(text);
             } else {
-                friendlyMsg = `⚠️ Oops, I'm having a moment! But don't worry — our team is just a tap away.\n\n**[💬 Chat with us on WhatsApp →](${WHATSAPP_LINK})**\n\nWe'll reply fast! 🐾`;
+                friendlyMsg = `⚠️ Oops, I'm having a moment! But don't worry — our team is just a tap away. 🐾\n\n${WHATSAPP_BTN}`;
             }
 
             setMessages(prev => prev.map(msg =>

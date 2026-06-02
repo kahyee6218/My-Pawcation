@@ -5,7 +5,7 @@
 
 import { CONTACT_INFO, PRICING_DATA } from '../constants';
 
-const WHATSAPP = `[💬 Chat on WhatsApp →](https://wa.me/60173840723?text=Hi%20My%20Pawcation!%20I%20have%20a%20question)`;
+const WHATSAPP = `[💬 WhatsApp Us](https://wa.me/60173840723?text=Hi%20My%20Pawcation!%20I%20have%20a%20question)`;
 
 // ----------------------------------------------------------------
 // KNOWLEDGE BASE — instant exact & fuzzy matches
