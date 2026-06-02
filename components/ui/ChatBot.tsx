@@ -5,23 +5,43 @@ import ChatMessage from './ChatMessage';
 import QuickActions from './QuickActions';
 import { sendMessageToGemini, resetChat } from '../../services/geminiService';
 import { getInstantReply, getFallbackReply } from '../../services/smartReply';
+import {
+  getStepQuestion,
+  getStepOptions,
+  processStep,
+  INITIAL_FLOW,
+  FlowState,
+} from '../../services/bookingFlow';
 import { Message, ChatState } from '../../types/chat';
 import { QUICK_ACTIONS } from '../../constants';
 
 const WHATSAPP_BTN = '[💬 WhatsApp Us](https://wa.me/60173840723?text=Hi%20My%20Pawcation!%20I%20have%20a%20question)';
+
+/** Quick-action that triggers the booking flow */
+const BOOK_NOW_ACTION = { label: '🐾 Book Now', query: '__START_BOOKING__' };
+
+/** Custom quick actions: Book Now + existing ones */
+const ALL_ACTIONS = [
+  BOOK_NOW_ACTION,
+  ...QUICK_ACTIONS,
+];
 
 function ChatBot() {
     const [messages, setMessages] = useState<Message[]>([
         {
             id: 'welcome',
             role: 'model',
-            content: `Hi there! 🐾 I'm the AI assistant for **My Pawcation**. I can help you with boarding rates, booking info, and answering questions about our cage-free home-style care. How can I help you today?\n\n${WHATSAPP_BTN}`,
+            content: `Hi there! 🐾 I'm the AI assistant for **My Pawcation**. I can help you with boarding rates, booking info, and answering questions about our cage-free home-style care.\n\nTap **🐾 Book Now** and I'll walk you through a quick booking form — when you're done, I'll send all the details to us on WhatsApp!`,
             timestamp: new Date()
         }
     ]);
     const [inputText, setInputText] = useState('');
     const [chatState, setChatState] = useState<ChatState>(ChatState.IDLE);
     const [isOpen, setIsOpen] = useState(false);
+
+    // ── Booking Flow State ──
+    const [flowState, setFlowState] = useState<FlowState | null>(null);
+    const [isInFlow, setIsInFlow] = useState(false);
 
     const messagesEndRef = useRef<HTMLDivElement>(null);
     const inputRef = useRef<HTMLInputElement>(null);
@@ -37,11 +57,60 @@ function ChatBot() {
         }
     }, [messages, isOpen]);
 
+    /** Add a bot message to the chat */
+    const addBotMessage = (content: string) => {
+        const botMsg: Message = {
+            id: Date.now().toString(),
+            role: 'model',
+            content,
+            timestamp: new Date()
+        };
+        setMessages(prev => [...prev, botMsg]);
+    };
+
+    /** Start the guided booking flow */
+    const startBookingFlow = () => {
+        setIsInFlow(true);
+        const initial = { ...INITIAL_FLOW, started: true };
+        setFlowState(initial);
+        const question = getStepQuestion(initial);
+        const options = getStepOptions(initial);
+        addBotMessage(question);
+        // Also add quick-reply chips for the first step
+        if (options.length > 0) {
+            addBotMessage(`*Tap an option above or type your answer:*`);
+        }
+    };
+
+    /** Handle input within the booking flow */
+    const handleFlowInput = (text: string) => {
+        if (!flowState) return;
+
+        const result = processStep(text, flowState);
+        setFlowState(result.nextState);
+
+        if (result.reply) {
+            addBotMessage(result.reply);
+        }
+
+        if (result.complete) {
+            // Booking flow is done
+            setIsInFlow(false);
+            setFlowState(null);
+        } else {
+            // Ask next question
+            const nextQuestion = getStepQuestion(result.nextState);
+            const nextOptions = getStepOptions(result.nextState);
+            // Small delay for natural feel
+            setTimeout(() => {
+                addBotMessage(nextQuestion);
+            }, 300);
+        }
+    };
+
     /**
-     * Smart response flow:
-     * 1. Try instant local match (0ms) — handles ~80% of questions
-     * 2. If no match, try Gemini (streaming) for unique/complex queries
-     * 3. If Gemini fails, show fallback with WhatsApp link
+     * Main message handler.
+     * Priority: Booking Flow > Smart Local Match > Gemini > Fallback
      */
     const handleSendMessage = async (text: string = inputText) => {
         if (!text.trim() || chatState === ChatState.LOADING || chatState === ChatState.STREAMING) return;
@@ -57,11 +126,34 @@ function ChatBot() {
         setMessages(prev => [...prev, userMessage]);
         setInputText('');
 
-        // ── STEP 1: Try instant local match ──
+        // ── PRIORITY 1: Booking flow trigger ──
+        if (text === '__START_BOOKING__') {
+            startBookingFlow();
+            return;
+        }
+
+        // ── PRIORITY 2: Active booking flow ──
+        if (isInFlow && flowState) {
+            handleFlowInput(text);
+            return;
+        }
+
+        // ── PRIORITY 3: Detect "I want to book" intent and start flow ──
+        const lowerText = text.toLowerCase();
+        const bookingIntents = [
+            'book now', 'i want to book', 'make a booking', 'reserve',
+            'booking', 'book a slot', 'i\'d like to book', 'can i book',
+            'nak book', 'nak tempah', 'boleh book', 'mau booking',
+        ];
+        if (bookingIntents.some(intent => lowerText.includes(intent)) && !lowerText.includes('how') && !lowerText.includes('way')) {
+            startBookingFlow();
+            return;
+        }
+
+        // ── PRIORITY 4: Instant smart reply ──
         const instant = getInstantReply(text);
 
         if (instant) {
-            // Instant reply — no API call needed!
             const botMsg: Message = {
                 id: (Date.now() + 1).toString(),
                 role: 'model',
@@ -73,7 +165,7 @@ function ChatBot() {
             return;
         }
 
-        // ── STEP 2: Fall back to Gemini for complex questions ──
+        // ── PRIORITY 5: Gemini for complex questions ──
         setChatState(ChatState.LOADING);
 
         const botMessageId = (Date.now() + 1).toString();
@@ -95,17 +187,13 @@ function ChatBot() {
             setChatState(ChatState.IDLE);
         } catch (error: any) {
             console.error('Gemini error:', error);
-
-            // ── STEP 3: Smart fallback with WhatsApp ──
             const isKeyError = error?.message?.includes('API key') || error?.message?.includes('400');
-
             let friendlyMsg: string;
             if (isKeyError) {
                 friendlyMsg = getFallbackReply(text);
             } else {
                 friendlyMsg = `⚠️ Oops, I'm having a moment! But don't worry — our team is just a tap away. 🐾\n\n${WHATSAPP_BTN}`;
             }
-
             setMessages(prev => prev.map(msg =>
                 msg.id === botMessageId ? { ...msg, content: friendlyMsg } : msg
             ));
@@ -115,9 +203,16 @@ function ChatBot() {
 
     const handleReset = () => {
         setMessages([messages[0]]);
+        setIsInFlow(false);
+        setFlowState(null);
         resetChat();
         setTimeout(() => inputRef.current?.focus(), 100);
     };
+
+    /** Get quick actions — show flow options when in a booking flow */
+    const currentActions = isInFlow && flowState
+        ? getStepOptions(flowState).map(opt => ({ label: opt, query: opt }))
+        : ALL_ACTIONS;
 
     return (
         <div className="fixed bottom-4 right-4 z-[9999] flex flex-col items-end gap-4 pointer-events-auto font-sans">
@@ -169,7 +264,8 @@ function ChatBot() {
                                 <div>
                                     <h2 className="font-bold text-sm">My Pawcation</h2>
                                     <p className="text-[10px] text-white/70 flex items-center gap-1">
-                                        <Zap size={10} /> Instant smart replies
+                                        <Zap size={10} />
+                                        {isInFlow ? '📋 Booking form' : 'Instant smart replies'}
                                     </p>
                                 </div>
                             </div>
@@ -215,7 +311,7 @@ function ChatBot() {
 
                         {/* Input Area */}
                         <div className="bg-white border-t border-stone-100 p-3">
-                            <QuickActions actions={QUICK_ACTIONS} onActionClick={handleSendMessage} disabled={chatState !== ChatState.IDLE} />
+                            <QuickActions actions={currentActions} onActionClick={handleSendMessage} disabled={chatState !== ChatState.IDLE} />
                             <div className="relative mt-2">
                                 <input
                                     ref={inputRef}
@@ -223,7 +319,7 @@ function ChatBot() {
                                     value={inputText}
                                     onChange={(e) => setInputText(e.target.value)}
                                     onKeyDown={(e) => e.key === 'Enter' && handleSendMessage()}
-                                    placeholder="Ask me anything... e.g. 'pricing', 'booking', 'location'"
+                                    placeholder={isInFlow ? 'Type your answer...' : 'Ask me anything or tap 🐾 Book Now'}
                                     className="w-full bg-stone-50 border border-stone-200 text-sm rounded-full pl-4 pr-10 py-2.5 outline-none focus:ring-2 focus:ring-[#8B5E3C]"
                                 />
                                 <button onClick={() => handleSendMessage()} className="absolute right-1.5 top-1.5 p-1.5 bg-[#8B5E3C] text-white rounded-full"><Send size={16} /></button>
