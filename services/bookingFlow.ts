@@ -264,7 +264,7 @@ export function processStep(userInput: string, state: FlowState): {
       next.step = 'pet_type';
       return {
         nextState: next,
-        reply: `Got it, ${clamped} pet${clamped > 1 ? 's' : ''}! Let's add the details one by one. 🐾`,
+        reply: `Got it, ${clamped} pet${clamped > 1 ? 's' : ''}! We'll add each one separately so nothing gets mixed up. 🐾`,
         complete: false
       };
     }
@@ -282,7 +282,7 @@ export function processStep(userInput: string, state: FlowState): {
       next.step = 'pet_name';
       return {
         nextState: next,
-        reply: `${pet.type === 'dog' ? '🐶' : pet.type === 'cat' ? '🐱' : '🐰'} ${pet.type.charAt(0).toUpperCase() + pet.type.slice(1)}! `,
+        reply: `${pet.type === 'dog' ? '🐶' : pet.type === 'cat' ? '🐱' : '🐰'} ${pet.type.charAt(0).toUpperCase() + pet.type.slice(1)} added. What is this pet's name?`,
         complete: false
       };
     }
@@ -328,7 +328,7 @@ export function processStep(userInput: string, state: FlowState): {
       next.step = 'pet_weight';
       return {
         nextState: next,
-        reply: `Size: ${pet.size}. `,
+        reply: `Got it — ${pet.size.toUpperCase()} size. What is ${pet.name || 'this pet'}'s approximate weight?`,
         complete: false
       };
     }
@@ -342,7 +342,7 @@ export function processStep(userInput: string, state: FlowState): {
       next.step = 'pet_notes';
       return {
         nextState: next,
-        reply: `Weight: ~${pet.weight}. `,
+        reply: pet.weight ? `Weight noted: ~${pet.weight}.` : `Weight noted.`,
         complete: false
       };
     }
@@ -358,16 +358,14 @@ export function processStep(userInput: string, state: FlowState): {
       pets[currentPetIndex] = pet;
       next.booking = { ...booking, pets };
 
-      // Check if there are more pets to add
       if (currentPetIndex + 1 < next.booking.pets.length) {
         next.step = 'add_more_pets';
         return {
           nextState: next,
-          reply: `Notes saved for ${pet.name}! ✅`,
+          reply: `Saved ${pet.name || `pet ${currentPetIndex + 1}`} ✅`,
           complete: false
         };
       } else {
-        // All pets done
         next.step = 'dates';
         return {
           nextState: next,
@@ -379,20 +377,19 @@ export function processStep(userInput: string, state: FlowState): {
 
     // ── ADD MORE PETS? ──
     case 'add_more_pets': {
-      if (lower.includes('add') || lower.includes('+') || lower.includes('yes') || lower.includes('ya')) {
-        // Move to next pet (already allocated in array)
+      if (lower.includes('add') || lower.includes('+') || lower.includes('yes') || lower.includes('ya') || lower.includes('another')) {
         next.currentPetIndex = currentPetIndex + 1;
         next.step = 'pet_type';
         return {
           nextState: next,
-          reply: `Let's add pet #${next.currentPetIndex + 1}! 🐾`,
+          reply: `Great — let's add pet #${next.currentPetIndex + 1}. Is it a dog, cat, or rabbit?`,
           complete: false
         };
       } else {
         next.step = 'dates';
         return {
           nextState: next,
-          reply: `All pets done! ✅ Now let's get your dates.`,
+          reply: `Perfect — let's continue with your dates.`,
           complete: false
         };
       }
