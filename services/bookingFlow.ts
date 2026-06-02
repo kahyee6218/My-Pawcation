@@ -90,37 +90,52 @@ interface StepHandler {
 
 const WHATSAPP_NUMBER = '60173840723';
 
+function normalizeWeight(input: string): string {
+  const match = input.match(/\d+(?:\.\d+)?/);
+  if (!match) return '';
+  return `${match[0]}kg`;
+}
+
+function formatPetLabel(pet: PetInfo): string {
+  const parts: string[] = [];
+  if (pet.name) parts.push(pet.name);
+  if (pet.type) parts.push(pet.type);
+  if (pet.breed) parts.push(pet.breed);
+  if (pet.size) parts.push(pet.size);
+  if (pet.weight) parts.push(pet.weight);
+  if (pet.notes) parts.push(`📝 ${pet.notes}`);
+  return parts.join(' · ');
+}
+
 function buildWhatsAppLink(summary: BookingSummary): string {
   const lines: string[] = [];
 
-  lines.push(`🐾 *New Booking Enquiry – My Pawcation*`);
+  lines.push(`🐾 New Booking Enquiry – My Pawcation`);
   lines.push(``);
-  lines.push(`👤 *Customer:* ${summary.customerName || '(not provided)'}`);
-  lines.push(`📞 *Phone:* ${summary.customerPhone || '(not provided)'}`);
+  lines.push(`👤 Customer: ${summary.customerName || '(not provided)'}`);
+  lines.push(`📞 Phone: ${summary.customerPhone || '(not provided)'}`);
   lines.push(``);
-  lines.push(`📋 *Service:* ${summary.serviceType === 'boarding' ? '🏠 Boarding' : '☀️ Daycare'}`);
-  lines.push(`📅 *Check-in:* ${summary.checkIn || 'TBC'}`);
-  lines.push(`📅 *Check-out:* ${summary.checkOut || 'TBC'}`);
+  lines.push(`📋 Service: ${summary.serviceType === 'boarding' ? '🏠 Boarding' : '☀️ Daycare'}`);
+  lines.push(`📅 Check-in: ${summary.checkIn || 'TBC'}`);
+  lines.push(`📅 Check-out: ${summary.checkOut || 'TBC'}`);
   lines.push(``);
 
-  if (summary.pets.length > 0) {
-    lines.push(`🐶🐱 *Pets (${summary.pets.length}):*`);
-    summary.pets.forEach((pet, i) => {
-      const details: string[] = [];
-      if (pet.name) details.push(`Name: ${pet.name}`);
-      if (pet.type) details.push(`Type: ${pet.type}`);
-      if (pet.breed) details.push(`Breed: ${pet.breed}`);
-      if (pet.size) details.push(`Size: ${pet.size}`);
-      if (pet.weight) details.push(`Weight: ${pet.weight}`);
-      if (pet.notes) details.push(`Notes: ${pet.notes}`);
-      lines.push(`  ${i + 1}. ${details.join(' | ')}`);
+  const validPets = summary.pets.filter(pet => pet.name || pet.type || pet.breed || pet.size || pet.weight || pet.notes);
+  if (validPets.length > 0) {
+    lines.push(`🐶🐱 Pets (${validPets.length}):`);
+    validPets.forEach((pet, i) => {
+      lines.push(`${i + 1}. ${formatPetLabel(pet)}`);
     });
     lines.push(``);
   }
 
-  if (summary.addGrooming) lines.push(`✂️ Grooming: Yes`);
-  if (summary.addTransport) lines.push(`🚗 Transport: Yes`);
-  if (summary.addGrooming || summary.addTransport) lines.push(``);
+  const addons: string[] = [];
+  if (summary.addGrooming) addons.push('✂️ Grooming');
+  if (summary.addTransport) addons.push('🚗 Transport');
+  if (addons.length > 0) {
+    lines.push(`🔧 Add-ons: ${addons.join(', ')}`);
+    lines.push(``);
+  }
 
   const message = lines.join('\n');
   return `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`;
@@ -235,7 +250,8 @@ export function processStep(userInput: string, state: FlowState): {
 
     // ── PET COUNT ──
     case 'pet_count': {
-      const count = parseInt(text) || 1;
+      const countMatch = text.match(/\d+/);
+      const count = countMatch ? parseInt(countMatch[0], 10) : 1;
       const clamped = Math.max(1, Math.min(count, 5));
       next.booking = { ...booking, pets: Array(clamped).fill(null).map(() => ({ ...EMPTY_PET })) };
       next.currentPetIndex = 0;
@@ -313,7 +329,7 @@ export function processStep(userInput: string, state: FlowState): {
 
     // ── PET WEIGHT ──
     case 'pet_weight': {
-      pet.weight = text.replace(/[^0-9.]/g, '') + 'kg';
+      pet.weight = normalizeWeight(text);
       const pets = [...next.booking.pets];
       pets[currentPetIndex] = pet;
       next.booking = { ...booking, pets };
@@ -378,21 +394,26 @@ export function processStep(userInput: string, state: FlowState): {
 
     // ── DATES ──
     case 'dates': {
+      const looksLikeCheckOut = /\b(to|until|till|end|checkout|check-out|out)\b/i.test(lower) || /\d{1,2}\/\d{1,2}\s*[-–]\s*\d{1,2}\/\d{1,2}/.test(lower);
+
       if (!next.booking.checkIn) {
-        // First response = check-in date
         next.booking = { ...booking, checkIn: text };
         return {
           nextState: next,
-          reply: `Check-in: ${text}. 📅\n\nAnd when would you like to **check-out**?`,
+          reply: `Check-in noted: ${text}. 📅\n\nAnd when would you like to **check-out**?`,
           complete: false
         };
-      } else if (!next.booking.checkOut) {
-        // Second response = check-out date
-        next.booking = { ...booking, checkOut: text };
+      }
+
+      if (!next.booking.checkOut) {
+        const cleanText = text.replace(/^yes\s*/i, '').trim();
+        next.booking = { ...booking, checkOut: cleanText };
         next.step = 'addons';
         return {
           nextState: next,
-          reply: `Check-out: ${text}. 📅\n\nGot it! ${text.split(' ')[0]} to ${text.split(' ')[0]} sounds paw-some! 🐾`,
+          reply: looksLikeCheckOut
+            ? `Check-out noted: ${cleanText}. 📅\n\nAny extra services?`
+            : `Check-out noted: ${cleanText}. 📅\n\nAny extra services?`,
           complete: false
         };
       }
@@ -436,19 +457,19 @@ export function processStep(userInput: string, state: FlowState): {
       const waLink = buildWhatsAppLink(next.booking);
       return {
         nextState: next,
-        reply: `Thanks! Here's your booking summary:\n\n${formatSummary(next.booking)}\n\n[💬 Send to WhatsApp →](${waLink})`,
-        complete: true
+        reply: `✅ Booking details are ready!\n\n${formatSummary(next.booking)}\n\nTap the button below to send this to WhatsApp.`,
+        complete: true,
+        // store WhatsApp link in summary step via nextState.booking only
       };
     }
 
     // ── SUMMARY / DONE ──
     case 'summary':
     case 'done': {
-      // Restart or handle follow-up
       const waLink = buildWhatsAppLink(next.booking);
       return {
         nextState: next,
-        reply: `[💬 Send to WhatsApp →](${waLink})`,
+        reply: `Ready to send!\n\n[💬 Send to WhatsApp →](${waLink})`,
         complete: true
       };
     }
@@ -467,23 +488,18 @@ export function processStep(userInput: string, state: FlowState): {
 function formatSummary(booking: BookingSummary): string {
   const lines: string[] = [];
 
-  lines.push(`📋 **Booking Summary**`);
+  lines.push(`📋 Booking Summary`);
   lines.push(``);
-  lines.push(`🐾 **Service:** ${booking.serviceType === 'boarding' ? '🏠 Boarding' : '☀️ Daycare'}`);
-  lines.push(`📅 **Check-in:** ${booking.checkIn || 'TBC'}`);
-  lines.push(`📅 **Check-out:** ${booking.checkOut || 'TBC'}`);
+  lines.push(`🐾 Service: ${booking.serviceType === 'boarding' ? '🏠 Boarding' : '☀️ Daycare'}`);
+  lines.push(`📅 Check-in: ${booking.checkIn || 'TBC'}`);
+  lines.push(`📅 Check-out: ${booking.checkOut || 'TBC'}`);
   lines.push(``);
 
-  if (booking.pets.length > 0) {
-    booking.pets.forEach((pet, i) => {
-      const details: string[] = [];
-      if (pet.name) details.push(pet.name);
-      if (pet.type) details.push(pet.type);
-      if (pet.breed) details.push(pet.breed);
-      if (pet.size) details.push(pet.size);
-      if (pet.weight) details.push(pet.weight);
-      if (pet.notes) details.push(`📝 ${pet.notes}`);
-      lines.push(`🐶🐱 **Pet ${i + 1}:** ${details.join(' · ')}`);
+  const validPets = booking.pets.filter(pet => pet.name || pet.type || pet.breed || pet.size || pet.weight || pet.notes);
+  if (validPets.length > 0) {
+    validPets.forEach((pet, i) => {
+      const details = formatPetLabel(pet);
+      lines.push(`🐶🐱 Pet ${i + 1}: ${details}`);
     });
     lines.push(``);
   }
@@ -492,12 +508,12 @@ function formatSummary(booking: BookingSummary): string {
   if (booking.addGrooming) addons.push('✂️ Grooming');
   if (booking.addTransport) addons.push('🚗 Transport');
   if (addons.length > 0) {
-    lines.push(`🔧 **Add-ons:** ${addons.join(', ')}`);
+    lines.push(`🔧 Add-ons: ${addons.join(', ')}`);
     lines.push(``);
   }
 
-  lines.push(`👤 **Customer:** ${booking.customerName || 'TBC'}`);
-  lines.push(`📞 **Phone:** ${booking.customerPhone || 'TBC'}`);
+  lines.push(`👤 Customer: ${booking.customerName || 'TBC'}`);
+  lines.push(`📞 Phone: ${booking.customerPhone || 'TBC'}`);
 
   return lines.join('\n');
 }

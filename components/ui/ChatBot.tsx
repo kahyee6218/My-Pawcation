@@ -73,13 +73,7 @@ function ChatBot() {
         setIsInFlow(true);
         const initial = { ...INITIAL_FLOW, started: true };
         setFlowState(initial);
-        const question = getStepQuestion(initial);
-        const options = getStepOptions(initial);
-        addBotMessage(question);
-        // Also add quick-reply chips for the first step
-        if (options.length > 0) {
-            addBotMessage(`*Tap an option above or type your answer:*`);
-        }
+        addBotMessage(getStepQuestion(initial));
     };
 
     /** Handle input within the booking flow */
@@ -100,11 +94,9 @@ function ChatBot() {
         } else {
             // Ask next question
             const nextQuestion = getStepQuestion(result.nextState);
-            const nextOptions = getStepOptions(result.nextState);
-            // Small delay for natural feel
             setTimeout(() => {
                 addBotMessage(nextQuestion);
-            }, 300);
+            }, 250);
         }
     };
 
