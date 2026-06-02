@@ -1,18 +1,21 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Send, PawPrint, X, RefreshCcw, MessageCircle } from 'lucide-react';
+import { Send, PawPrint, X, RefreshCcw, MessageCircle, Zap } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import ChatMessage from './ChatMessage';
 import QuickActions from './QuickActions';
 import { sendMessageToGemini, resetChat } from '../../services/geminiService';
+import { getInstantReply, getFallbackReply } from '../../services/smartReply';
 import { Message, ChatState } from '../../types/chat';
 import { QUICK_ACTIONS } from '../../constants';
+
+const WHATSAPP_LINK = 'https://wa.me/60173840723?text=Hi%20My%20Pawcation!%20I%20have%20a%20question';
 
 function ChatBot() {
     const [messages, setMessages] = useState<Message[]>([
         {
             id: 'welcome',
             role: 'model',
-            content: "Hi there! 🐾 I'm the AI assistant for **My Pawcation**. I can help you with boarding rates, booking info, and answering questions about our cage-free home-style care. How can I help you today?",
+            content: `Hi there! 🐾 I'm the AI assistant for **My Pawcation**. I can help you with boarding rates, booking info, and answering questions about our cage-free home-style care. How can I help you today?\n\n💡 *Prefer to talk to a human?* [Chat with us on WhatsApp →](${WHATSAPP_LINK})`,
             timestamp: new Date()
         }
     ]);
@@ -34,6 +37,12 @@ function ChatBot() {
         }
     }, [messages, isOpen]);
 
+    /**
+     * Smart response flow:
+     * 1. Try instant local match (0ms) — handles ~80% of questions
+     * 2. If no match, try Gemini (streaming) for unique/complex queries
+     * 3. If Gemini fails, show fallback with WhatsApp link
+     */
     const handleSendMessage = async (text: string = inputText) => {
         if (!text.trim() || chatState === ChatState.LOADING || chatState === ChatState.STREAMING) return;
         if (chatState === ChatState.ERROR) setChatState(ChatState.IDLE);
@@ -47,6 +56,24 @@ function ChatBot() {
 
         setMessages(prev => [...prev, userMessage]);
         setInputText('');
+
+        // ── STEP 1: Try instant local match ──
+        const instant = getInstantReply(text);
+
+        if (instant) {
+            // Instant reply — no API call needed!
+            const botMsg: Message = {
+                id: (Date.now() + 1).toString(),
+                role: 'model',
+                content: instant.reply,
+                timestamp: new Date()
+            };
+            setMessages(prev => [...prev, botMsg]);
+            setChatState(ChatState.IDLE);
+            return;
+        }
+
+        // ── STEP 2: Fall back to Gemini for complex questions ──
         setChatState(ChatState.LOADING);
 
         const botMessageId = (Date.now() + 1).toString();
@@ -67,11 +94,18 @@ function ChatBot() {
             });
             setChatState(ChatState.IDLE);
         } catch (error: any) {
-            console.error(error);
+            console.error('Gemini error:', error);
+
+            // ── STEP 3: Smart fallback with WhatsApp ──
             const isKeyError = error?.message?.includes('API key') || error?.message?.includes('400');
-            const friendlyMsg = isKeyError
-                ? "⚠️ The AI assistant is temporarily unavailable. Please contact us directly on WhatsApp and we'll be happy to help! 🐾"
-                : "⚠️ Sorry, I'm having trouble connecting right now. Please try again in a moment, or reach us directly on WhatsApp.";
+
+            let friendlyMsg: string;
+            if (isKeyError) {
+                friendlyMsg = getFallbackReply(text);
+            } else {
+                friendlyMsg = `⚠️ Oops, I'm having a moment! But don't worry — our team is just a tap away.\n\n**[💬 Chat with us on WhatsApp →](${WHATSAPP_LINK})**\n\nWe'll reply fast! 🐾`;
+            }
+
             setMessages(prev => prev.map(msg =>
                 msg.id === botMessageId ? { ...msg, content: friendlyMsg } : msg
             ));
@@ -132,10 +166,15 @@ function ChatBot() {
                                 >
                                     <PawPrint size={18} />
                                 </motion.div>
-                                <h2 className="font-bold text-sm">My Pawcation</h2>
+                                <div>
+                                    <h2 className="font-bold text-sm">My Pawcation</h2>
+                                    <p className="text-[10px] text-white/70 flex items-center gap-1">
+                                        <Zap size={10} /> Instant smart replies
+                                    </p>
+                                </div>
                             </div>
                             <div className="flex gap-1">
-                                <button onClick={handleReset} className="p-2 hover:bg-white/10 rounded-full"><RefreshCcw size={16} /></button>
+                                <button onClick={handleReset} className="p-2 hover:bg-white/10 rounded-full" title="Reset chat"><RefreshCcw size={16} /></button>
                                 <button onClick={() => setIsOpen(false)} className="p-2 hover:bg-white/10 rounded-full"><X size={20} /></button>
                             </div>
                         </div>
@@ -184,7 +223,7 @@ function ChatBot() {
                                     value={inputText}
                                     onChange={(e) => setInputText(e.target.value)}
                                     onKeyDown={(e) => e.key === 'Enter' && handleSendMessage()}
-                                    placeholder="Type your message..."
+                                    placeholder="Ask me anything... e.g. 'pricing', 'booking', 'location'"
                                     className="w-full bg-stone-50 border border-stone-200 text-sm rounded-full pl-4 pr-10 py-2.5 outline-none focus:ring-2 focus:ring-[#8B5E3C]"
                                 />
                                 <button onClick={() => handleSendMessage()} className="absolute right-1.5 top-1.5 p-1.5 bg-[#8B5E3C] text-white rounded-full"><Send size={16} /></button>
